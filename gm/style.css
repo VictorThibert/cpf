@@ -33,10 +33,10 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 	position: relative;
 	/*opacity: 0.85;*/
   	/*padding: 50px;*/
-  	top: 50px;
-  	right: 50px;
-  	width: 400px;
-  	height: 600px;
+  	top: 40px;
+  	right: 3%;
+  	width: 25%;
+  	height: 50%;
   	background: white;
   	border-radius: 10px;
   	-webkit-box-shadow: 0px 0px 12px -1px rgba(112,112,112,0.58);
@@ -61,8 +61,8 @@ user-select: none;
 
 .centered {
 	font-family: 'Montserrat', sans-serif;
-	letter-spacing: 5px;
-	font-size: 20px;
+	letter-spacing: 6px;
+	font-size: 17px;
 	color: #5764ae;
     position: absolute;
     top: 72%;
