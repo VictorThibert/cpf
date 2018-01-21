@@ -7,10 +7,10 @@ restaurant = Blueprint('restaurant', __name__, url_prefix='/restaurant')
 logging.info("this is from the game file");
 
 @restaurant.route('/<id>/info')
-def getGameInformation(id):
+def getInformation(id):
     pass
 
 @restaurant.route('/get_list')
-def getGameInformation():
+def getList():
     pass
 

@@ -1,29 +1,16 @@
 import logging
 from flask import Flask, send_from_directory, redirect
-from backend.extensions import mongo, app
+from restaurants import restaurant
+from extensions import app
 
-app.config.from_object(__name__)
 
-# Load default config and override config from an environment variable
-app.config.update(dict(
-    DEBUG='debug',
-    STEAM_API_KEY="5A077504BD2C3BC32039D1CCF3DE1B75"
-))
-
-# -------------------- add blueprints ------------------------------
-from backend.blueprint.blueprints import all_blueprints
-
-## all the urls with the prefix /rev will be handles by the recommend blueprint
-for blueprint in all_blueprints:
-    app.register_blueprint(blueprint)
-
-# -------------------- add blueprints  ------------------------------
+app.register_blueprint(restaurant)
 
 
 # this is the main route
 @app.route('/')
 def mainPage():
-  return redirect('/static/index.html');
+  return "fallback :)"
 
 
 ## makes it so that when you run this script it starts flask, but it is recommmened to start

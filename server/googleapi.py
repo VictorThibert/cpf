@@ -1,10 +1,11 @@
 from googleplaces import GooglePlaces, types, lang
 from extensions import db
+import uuid
 
-YOUR_API_KEY = 'AIzaSyBqBPkJ6C6GFemKwqqI8lMOuz6_Tr91bs8'
-google_places = GooglePlaces(YOUR_API_KEY)
+API_KEY = 'AIzaSyBqBPkJ6C6GFemKwqqI8lMOuz6_Tr91bs8'
+google_places = GooglePlaces(API_KEY)
 
-def get_google_results(location='Montreal, Canada', radius=20000):
+def get_google_results(location='Montreal, Canada', radius=20000, limit=-1):
     # You may prefer to use the text_search API, instead.
     print("get_google_results: function start")
     query_result = google_places.nearby_search(
@@ -14,10 +15,11 @@ def get_google_results(location='Montreal, Canada', radius=20000):
 
     if query_result.has_attributions:
         print(query_result.html_attributions)
-
+    num_places = 0
     while True:
-        print("get_google_results: loop")
         for place in query_result.places:
+            num_places += 1
+            if(num_places == limit): break
             place.get_details()
             yield place
         
@@ -25,45 +27,40 @@ def get_google_results(location='Montreal, Canada', radius=20000):
             query_result = google_places.nearby_search(
         	    pagetoken=query_result.next_page_token)
         else: break
-        """
-        # Returned places from a query are place summaries.
-        print place.name
-        print place.geo_location
-        print place.place_id
 
-        # The following method has to make a further API call.
-        place.get_details()
-        # Referencing any of the attributes below, prior to making a call to
-        # get_details() will raise a googleplaces.GooglePlacesAttributeError.
-        print place.details # A dict matching the JSON response from Google.
-        print place.local_phone_number
-        print place.international_phone_number
-        print place.website
-        print place.url
+def parse_photos(photos, limit=3):
+    all_photos = []
+    num = 0 
+    print("parsing photos")
+    for photo in photos:
+        num += 1
+        print("parsing photo: ", photo)
+        all_photos.append(parse_photo(photo))
+        if(num == limit): break
+    return all_photos 
+def parse_photo(photo):
+    photo_inf = {}
+    photo.get(maxheight=500, maxwidth=500)
+    photo_inf['filename'] = photo.filename
+    photo_inf['url'] = photo.url
+    photo_inf['type'] = photo.mimetype
+    save_photo(photo)
+    return photo_inf
+def does_name_exist(name):
+    return False # TODO lolz :)
+def save_photo(photo):
+    name = ""
+    while True:
+        name = uuid.uuid4().hex[:15]
+        if(not does_name_exist(name)): break
+    file_type = photo.filename.split('.')[-1]
+    photo_file = open('./photos/' + name + '.'+file_type, 'wb')
+    photo_file.write(photo.data)
+    photo_file.close()
+    return name
 
-        # Getting place photos
-
-        for photo in place.photos:
-            # 'maxheight' or 'maxwidth' is required
-            photo.get(maxheight=500, maxwidth=500)
-            # MIME-type, e.g. 'image/jpeg'
-            photo.mimetype
-            # Image URL
-            photo.url
-            # Original filename (optional)
-            photo.filename
-            # Raw image data
-            photo.data
-        """
-
-    # Are there any additional pages of results?
-    if query_result.has_next_page_token:
-        query_result_next_page = google_places.nearby_search(
-                pagetoken=query_result.next_page_token)
-
-def add_all_data_db(get_data):
-    data_gen = get_data()
-    print("data_gen: ", data_gen)
+def add_all_data_db(get_data, limit=-1):
+    data_gen = get_data(limit=limit)
     for data in data_gen:
         add_data_db(data)
 def add_data_db(place):
@@ -71,10 +68,12 @@ def add_data_db(place):
     place_info = place.details
     del place_info['geometry']
     del place_info['scope']
+    place_info['photos'] = parse_photos(place.photos)
+    place_info['rating'] = float(place_info['rating'])
+    db.restaurants.save(place_info)
 
-
-def main():
-    add_data_db(get_google_results)
+def main(limit=-1):
+    add_all_data_db(get_google_results, limit)
 
 if __name__ == '__main__':
     main()
