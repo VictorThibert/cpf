@@ -36,7 +36,7 @@ app = Flask(__name__)
 
 from pymongo import MongoClient
 
-mongo = MongoClient('mongodb://localhost:27017/recSystemGames');
+mongo = MongoClient('mongodb://localhost:27017/cpf');
 db = mongo.get_default_database();
 # ## not going to use pymongo anymore,
 # mongo = PyMongo()
