@@ -1,6 +1,12 @@
 var map;
+var pos;
+// test: starting location
+const montreal = {lat:45.5017, lng:-73.5673};
+
+// intialize map 
 function initMap() {
-    const montreal = {lat:45.5017, lng:-73.5673};
+
+    // create map object
     map = new google.maps.Map(document.getElementById('map'), {
         center: montreal,
         zoom: 12,
@@ -293,6 +299,33 @@ function initMap() {
             }
         ]
     });
+
+    // geocoder 
+    var geocoder = new google.maps.Geocoder;
+    
+    // geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) { // gets called after location given
+        pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        // center map on geolocation
+        map.setCenter(pos);
+
+        // find out city
+        geocodeLatLng(geocoder, pos);
+    
+        }, function() {
+            handleLocationError(true, map.getCenter());
+            
+        });
+
+    } else {
+        // pass 
+    }
+
+    
     
     // customize icons for markers
     var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
@@ -309,10 +342,40 @@ function initMap() {
     };
 
 
+
     // create marker
     // var marker = new google.maps.Marker({
     //     position: montreal,
     //     map: map,
     //     icon: icons['pin1'].icon
     // });
+}
+
+function geocodeLatLng(geocoder, pos) {
+    var latlng = {lat: pos['lat'], lng: pos['lng']};
+    var closest_location;
+    console.log(latlng)
+    geocoder.geocode({'location': latlng}, function(results, status) {
+        closest_location = results[0]
+        if (status === 'OK') {
+            address = closest_location.formatted_address.split(",");
+            city = address[address.length - 3];
+            document.getElementById("cityname").innerHTML = city.toUpperCase();
+        } else {
+            window.alert('Geocoder failed due to: ' + status);
+        }
+    });
+} 
+
+function testLocation(lat, lng) {
+    var geocoder = new google.maps.Geocoder;
+    pos = {
+          lat: lat,
+          lng: lng
+        };
+    geocodeLatLng(geocoder, pos)
+}
+
+function handleLocationError(browserHasGeolocation,  pos) {
+    console.log("Error");
 }
