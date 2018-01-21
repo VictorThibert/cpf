@@ -1,14 +1,11 @@
-"""Flask and other extensions instantiated here.
-
-To avoid circular imports with views and create_app(), extensions are instantiated here.
-They will be initialized
-(calling init_app()) in main.py.
-"""
+# flask and other extensions instantiated here.
 
 from flask import Flask
+import logging
+from pymongo import MongoClient
 
 # -------------------- logger stuff ------------------------------
-import logging
+
 
 # set all the custom logging information needed
 logging.basicConfig(filename='main.log',level=logging.DEBUG)
@@ -22,37 +19,18 @@ formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
 console.setFormatter(formatter)
 # add the handler to the root logger
 logging.getLogger('').addHandler(console)
-# -------------------- logger stuff ------------------------------
 
 
-## create the main app for flask
+# create the main app for flask
 app = Flask(__name__)
 
 
 # -------------------- database stuff ------------------------------
-# from model.player import Player
-# from model.game import Game
-## initialize the mongodb driver
-
-from pymongo import MongoClient
 
 mongo = MongoClient('mongodb://localhost:27017/cpf');
 db = mongo.get_default_database();
-# ## not going to use pymongo anymore,
-# mongo = PyMongo()
-# app.config['MONGO_HOST'] = 'localhost'
-# app.config['MONGO_PORT'] = 27017
-# app.config['MONGO_DBNAME'] = 'games'
-# mongo.init_app(app, config_prefix='MONGO')
-
-# with app.get_context():
-# result = mongo.db.games.insert_one({"name":"temp", "stuff":"asdad"})
-
-# connection = Connection(host="27017", port=27017)
-# connection.register([Player, Game])
 
 
-# -------------------- database stuff ------------------------------
 
 
 
