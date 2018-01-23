@@ -38,10 +38,11 @@ def quadrants(TL,BR,db):
 	list_of_quadrants.append((TL,BR))
 
 	# lengths of the square (should be the same, but you never know)
+	# TODO: REVERSE THESE
 	horizontal = BR[0] - TL[0]
 	vertical = TL[1] - BR[1]
 
-	# determine the centers for the 4 circles
+	# determine the centers for the 4 circles 
 	c1 = (TL[0] + horizontal/4, BR[1] + 3*vertical/4)
 	c2 = (TL[0] + 3*horizontal/4, BR[1] + 3*vertical/4)
 	c3 = (TL[0] + horizontal/4, BR[1] + vertical/4)
