@@ -2,12 +2,14 @@
 
 import time
 import math
+import os
 from googleplaces import GooglePlaces, types, lang
 import geopy
 import geopy.distance
 from geopy.distance import VincentyDistance
 
-API_KEY = 'AIzaSyCDQT5ml_cuuTiow547s31RHb02RKy_APs'
+
+API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY")
 
 google_places = GooglePlaces(API_KEY)
 
@@ -75,12 +77,6 @@ def traverse_quadrant(TL, BR, all_restaurants):
         else:
             all_restaurants.extend(found_restaurants)
 
-
-
-
-
-
-
 # must be able to convert from latitude and longtitude into meters
 
 def main():
@@ -94,7 +90,6 @@ def get_places_at_location(location, radius):
     found_restaurants = []
 
     # TODO: find a more elegant structure instead of this ugly mess
-
     query_result = google_places.nearby_search(
         radius = radius,
         location = location,
