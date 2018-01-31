@@ -113,13 +113,15 @@ def get_places_at_location(location, radius):
 
     return found_restaurants
 
+def exists_in_db(place):
+    return db.montreal.find({'place_id':place['place_id']}).count() > 0
 def parse_place(place):
-
-    # reduce number of photos and parse
-    photos = parse_photos(place.photos)
 
     # set place to its details
     place = place.details
+
+    # reduce number of photos and parse
+    photos = parse_photos(place.photos)
 
     # remove unnecessary entries
     place['location'] = place['geometry']['location']
@@ -179,6 +181,10 @@ def add_to_db(found_restaurants):
     for place in found_restaurants:
 
         place.get_details()
+
+        if(exists_in_db(place.details)):
+            print("skipping this place, already exists in db")
+            continue
         place = parse_place(place)
         print("place: ", place)
 
