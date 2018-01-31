@@ -15,7 +15,6 @@ def get_google_results(location='Montreal, Canada', radius=20000, limit=60):
         location=location,
         radius=radius,
         types=[types.TYPE_RESTAURANT])
-
     if query_result.has_attributions:
         print(query_result.html_attributions)
     num_places = 0
@@ -59,7 +58,6 @@ def save_photo(photo):
     while True:
         name = uuid.uuid4().hex[:15]
         if(not does_name_exist(name)): break
-    print("going to save with name: ", name)
     file_type = photo.filename.split('.')[-1]
     photo_file = open('./photos/' + name + '.'+file_type, 'wb')
     photo_file.write(photo.data)
@@ -77,7 +75,6 @@ def add_data_db(place):
     del place_info['scope']
     place_info['photos'] = parse_photos(place.photos)
     place_info['rating'] = float(place_info['rating'])
-    print("place_info: ", place_info)
     db.restaurants.save(place_info)
 
 def main(limit=-1):

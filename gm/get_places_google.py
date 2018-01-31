@@ -92,7 +92,6 @@ def get_places_at_location(location, radius):
     print('location: ', location)
     current_count = 0
     found_restaurants = []
-
     query_result = google_places.nearby_search(
         radius = radius,
         location = location,
@@ -127,7 +126,6 @@ def parse_place(place):
     del place['scope']
     del place['adr_address']
     del place['icon']
-
     place['photos'] = photos
 
     # convert rating to a float
