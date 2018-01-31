@@ -23,9 +23,10 @@ google_places = GooglePlaces(API_KEY)
 all_restaurants = []
 
 # initial parameters (for Montreal)
+city = 'montreal'
 TL = (45.55, -73.7)
 BR = (45.4, -73.5)
-sleep_time = 3 # 0 if using .get_details, 2 if not
+sleep_time = 2 # 0 if using .get_details, 2 if not
 
 # TODO: issue with converting grid to lat/lng due to curvature of earth
 # TODO: standardize coordinate represenation (dictionry, vs (x,y) pair, etc.)
@@ -105,8 +106,9 @@ def get_places_at_location(location, radius):
             found_restaurants.append(place)
             print(current_count, place.name)
 
-        time.sleep(2)
+        
         if query_result.has_next_page_token:
+            time.sleep(2)
             query_result = google_places.nearby_search(pagetoken=query_result.next_page_token)
         else: 
             break
@@ -121,11 +123,7 @@ def parse_place(place):
     # set place to its details
     place = place.details
 
-    # remove unnecessary entries
-    del place['geometry']
-    del place['scope']
-    del place['adr_address']
-    del place['icon']
+
     
     place['photos'] = photos
 
@@ -134,6 +132,21 @@ def parse_place(place):
         place['rating'] = float(place['rating'])
     else:
         place['rating'] = float(0)
+
+    # converting location coordinates to float
+    if 'location' in place['geometry']:
+        place['location'] = {'lat':float(0), 'lng':float(0)}
+        place['location']['lat'] = float(place['geometry']['location']['lat'])
+        place['location']['lng'] = float(place['geometry']['location']['lng'])
+    else:
+        place['location']['lng'] = float(0)
+        place['location']['lat'] = float(0)
+
+    # remove unnecessary entries
+    del place['scope']
+    del place['adr_address']
+    del place['icon']
+    del place['geometry']
 
     return place
 
@@ -174,10 +187,12 @@ def add_to_db(found_restaurants):
 
         place.get_details()
         place = parse_place(place)
+        place['city'] = city
 
-        db.montreal.update_one(
+        db.restaurants.update_one(
             {'place_id':place['place_id']},
             {'$set':
+
                 place
             },
             upsert=True
