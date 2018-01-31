@@ -28,7 +28,6 @@ except ImportError:
     pass
 
 import warnings
-import types
 import lang
 import ranking
 
