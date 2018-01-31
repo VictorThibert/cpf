@@ -26,7 +26,7 @@ all_restaurants = []
 # initial parameters (for Montreal)
 TL = (45.55, -73.7)
 BR = (45.4, -73.5)
-sleep_time = 2 # 0 if using .get_details, 2 if not
+sleep_time = 4 # 0 if using .get_details, 2 if not
 
 # TODO: issue with converting grid to lat/lng due to curvature of earth
 # TODO: standardize coordinate represenation (dictionry, vs (x,y) pair, etc.)
@@ -122,7 +122,11 @@ def parse_place(place):
     place = place.details
 
     # remove unnecessary entries
-    # del place['geometry']
+    place['location'] = place['geometry']['location']
+    place['location']['lat'] = float(place['location']['lat'])
+    place['location']['lng'] = float(place['location']['lng'])
+
+    del place['geometry']
     del place['scope']
     del place['adr_address']
     del place['icon']
@@ -176,13 +180,14 @@ def add_to_db(found_restaurants):
 
         place.get_details()
         place = parse_place(place)
+        print("place: ", place)
 
         db.montreal.update_one(
             {'place_id':place['place_id']},
             {'$set':
                 place
             },
-            upsert=True
+                upsert=True
             )
 
 
