@@ -21,18 +21,19 @@ import uuid
 API_KEY = os.environ.get('GOOGLE_PLACES_API_KEY')
 google_places = GooglePlaces(API_KEY)
 
-all_restaurants = []
-
 # initial parameters (for Montreal)
+city = 'montreal'
 TL = (45.55, -73.7)
 BR = (45.4, -73.5)
-sleep_time = 4 # 0 if using .get_details, 2 if not
+
+sleep_time = 2 # 0 if using .get_details, 2 if not
+
 
 # TODO: issue with converting grid to lat/lng due to curvature of earth
 # TODO: standardize coordinate represenation (dictionry, vs (x,y) pair, etc.)
 # verify that current approximation works on city scales
 
-def traverse_quadrant(TL, BR, all_restaurants):
+def traverse_quadrant(TL, BR):
 
     # coordinate measurements
     latitude_midpoint = (TL[0] + BR[1])/2
@@ -81,10 +82,9 @@ def traverse_quadrant(TL, BR, all_restaurants):
 
         # subdivide if too many points in quadrant
         if len(found_restaurants) >= 60:
-            traverse_quadrant(TL_2[x], BR_2[x], all_restaurants)
+            traverse_quadrant(TL_2[x], BR_2[x])
 
         else:
-            all_restaurants.extend(found_restaurants)
             add_to_db(found_restaurants)
 
 def get_places_at_location(location, radius):
@@ -105,8 +105,9 @@ def get_places_at_location(location, radius):
             found_restaurants.append(place)
             print(current_count, place.name)
 
-        time.sleep(2)
+
         if query_result.has_next_page_token:
+            time.sleep(2)
             query_result = google_places.nearby_search(pagetoken=query_result.next_page_token)
         else:
             break
@@ -123,15 +124,11 @@ def parse_place(place):
     # reduce number of photos and parse
     photos = parse_photos(place.photos)
 
-    # remove unnecessary entries
+    # converting geometry into location
     place['location'] = place['geometry']['location']
     place['location']['lat'] = float(place['location']['lat'])
     place['location']['lng'] = float(place['location']['lng'])
 
-    del place['geometry']
-    del place['scope']
-    del place['adr_address']
-    del place['icon']
     place['photos'] = photos
 
     # convert rating to a float
@@ -139,6 +136,15 @@ def parse_place(place):
         place['rating'] = float(place['rating'])
     else:
         place['rating'] = float(0)
+
+    # remove unnecessary entries
+    del place['scope']
+    del place['adr_address']
+    del place['icon']
+    del place['geometry']
+
+    # add city name
+    place['city'] = city
 
     return place
 
@@ -182,13 +188,10 @@ def add_to_db(found_restaurants):
 
         place.get_details()
 
-        if(exists_in_db(place.details)):
-            print("skipping this place, already exists in db")
-            continue
+        if(exists_in_db(place.details)): continue
         place = parse_place(place)
-        print("place: ", place)
 
-        db.montreal.update_one(
+        db.restaurants.update_one(
             {'place_id':place['place_id']},
             {'$set':
                 place
@@ -204,7 +207,7 @@ def find_radius(square_length):
     return 0.5 * math.sqrt(2 * square_length ** 2)
 
 def main():
-    traverse_quadrant(TL, BR, all_restaurants)
+    traverse_quadrant(TL, BR)
 
 
 if __name__ == '__main__':
