@@ -4,6 +4,7 @@
 import time
 import math
 import os
+import glob
 
 # from googleplaces import GooglePlaces, lang, types
 from custom_wrapper import GooglePlaces, lang
@@ -25,7 +26,7 @@ all_restaurants = []
 # initial parameters (for Montreal)
 TL = (45.55, -73.7)
 BR = (45.4, -73.5)
-sleep_time = 3 # 0 if using .get_details, 2 if not
+sleep_time = 2 # 0 if using .get_details, 2 if not
 
 # TODO: issue with converting grid to lat/lng due to curvature of earth
 # TODO: standardize coordinate represenation (dictionry, vs (x,y) pair, etc.)
@@ -157,7 +158,7 @@ def format_photo(photo):
     return photo_inf
 
 def does_name_exist(name):
-    return len(glob.glob('./photos/'+name+'.*') > 0)
+    return len(glob.glob('./photos/'+name+'.*')) > 0
 
 def save_photo(photo):
     name = ''
