@@ -13,6 +13,7 @@ from geopy.distance import VincentyDistance
 
 # database related imports
 # from extensions import db
+from extensions import db
 import uuid
 
 # get API key from environment. TODO: use env file instead
@@ -24,7 +25,7 @@ all_restaurants = []
 # initial parameters (for Montreal)
 TL = (45.55, -73.7)
 BR = (45.4, -73.5)
-sleep_time = 0 # 0 if using .get_details, 2 if not
+sleep_time = 3 # 0 if using .get_details, 2 if not
 
 # TODO: issue with converting grid to lat/lng due to curvature of earth
 # TODO: standardize coordinate represenation (dictionry, vs (x,y) pair, etc.)
@@ -101,13 +102,11 @@ def get_places_at_location(location, radius):
     while True:
         for place in query_result.places:
             current_count += 1
-            place.get_details()
-            place = parse_place(place)
             found_restaurants.append(place)
             print(current_count, place.name)
 
+        time.sleep(2)
         if query_result.has_next_page_token:
-            time.sleep(sleep_time)
             query_result = google_places.nearby_search(pagetoken=query_result.next_page_token)
         else: 
             break
@@ -131,7 +130,10 @@ def parse_place(place):
     place['photos'] = photos
 
     # convert rating to a float
-    place['rating'] = float(place['rating'])
+    if 'rating' in place:
+        place['rating'] = float(place['rating'])
+    else:
+        place['rating'] = float(0)
 
     return place
 
@@ -167,9 +169,14 @@ def save_photo(photo):
 
 
 def add_to_db(found_restaurants):
+
     for place in found_restaurants:
-        db.montreal.update(
-            {'id':place.place_id},
+
+        place.get_details()
+        place = parse_place(place)
+
+        db.montreal.update_one(
+            {'place_id':place['place_id']},
             {'$set':
                 place
             },
