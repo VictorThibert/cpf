@@ -1,17 +1,20 @@
 from googleplaces import GooglePlaces, types, lang
 from extensions import db
+import os
 import uuid
+import glob
 
 API_KEY = 'AIzaSyBqBPkJ6C6GFemKwqqI8lMOuz6_Tr91bs8'
+
 google_places = GooglePlaces(API_KEY)
 
-def get_google_results(location='Montreal, Canada', radius=20000, limit=-1):
+def get_google_results(location='Montreal, Canada', radius=20000, limit=60):
     # You may prefer to use the text_search API, instead.
     print("get_google_results: function start")
     query_result = google_places.nearby_search(
-	location=location,
-	radius=radius,
-	types=[types.TYPE_RESTAURANT])
+        location=location,
+        radius=radius,
+        types=[types.TYPE_RESTAURANT])
 
     if query_result.has_attributions:
         print(query_result.html_attributions)
@@ -25,17 +28,18 @@ def get_google_results(location='Montreal, Canada', radius=20000, limit=-1):
 
         if query_result.has_next_page_token:
             query_result = google_places.nearby_search(
-        	    pagetoken=query_result.next_page_token)
+                pagetoken=query_result.next_page_token)
         else: break
 
 def parse_photos(photos, limit=3):
-    all_photos = []
+    all_photos = {}
     num = 0
     print("parsing photos")
     for photo in photos:
         num += 1
         print("parsing photo: ", photo)
-        all_photos.append(parse_photo(photo))
+        photo_obj = parse_photo(photo)
+        all_photos[photo_obj['id']] = photo_obj
         if(num == limit): break
     return all_photos
 def parse_photo(photo):
@@ -44,15 +48,18 @@ def parse_photo(photo):
     photo_inf['filename'] = photo.filename
     photo_inf['url'] = photo.url
     photo_inf['type'] = photo.mimetype
-    save_photo(photo)
+    photo_inf['id'] = save_photo(photo)
     return photo_inf
+
 def does_name_exist(name):
-    return False # TODO lolz :)
+    """ check if a file with that name already exists """
+    return len(glob.glob('./photos/'+name+'.*')) > 0
 def save_photo(photo):
     name = ""
     while True:
         name = uuid.uuid4().hex[:15]
         if(not does_name_exist(name)): break
+    print("going to save with name: ", name)
     file_type = photo.filename.split('.')[-1]
     photo_file = open('./photos/' + name + '.'+file_type, 'wb')
     photo_file.write(photo.data)
@@ -70,10 +77,11 @@ def add_data_db(place):
     del place_info['scope']
     place_info['photos'] = parse_photos(place.photos)
     place_info['rating'] = float(place_info['rating'])
+    print("place_info: ", place_info)
     db.restaurants.save(place_info)
 
 def main(limit=-1):
     add_all_data_db(get_google_results, limit)
 
 if __name__ == '__main__':
-    main()
+    main(limit=10)
