@@ -4,6 +4,7 @@
 import time
 import math
 import os
+import glob
 
 # from googleplaces import GooglePlaces, lang, types
 from custom_wrapper import GooglePlaces, lang
@@ -26,7 +27,9 @@ all_restaurants = []
 city = 'montreal'
 TL = (45.55, -73.7)
 BR = (45.4, -73.5)
+
 sleep_time = 2 # 0 if using .get_details, 2 if not
+
 
 # TODO: issue with converting grid to lat/lng due to curvature of earth
 # TODO: standardize coordinate represenation (dictionry, vs (x,y) pair, etc.)
@@ -57,7 +60,7 @@ def traverse_quadrant(TL, BR, all_restaurants):
 
     # store arrays for the TLs and BRs for the next four sub-quadrants
     TL_2 = [
-            (TL[0], TL[1]), 
+            (TL[0], TL[1]),
             (TL[0], TL[1] + (BR[1]-TL[1])/2),
             (TL[0] - (TL[0]-BR[0])/2, TL[1]),
             (TL[0] - (TL[0]-BR[0])/2, TL[1] + (BR[1]-TL[1])/2)
@@ -67,10 +70,10 @@ def traverse_quadrant(TL, BR, all_restaurants):
             (TL[0] - (TL[0]-BR[0])/2, BR[1]),
             (BR[0], TL[1] + (BR[1]-TL[1])/2),
             (BR[0], BR[1])
-            ]  
+            ]
 
-    # calculate associated radius for each sub-quadrant 
-    radius = find_radius(max(vertical, horizontal)/2) 
+    # calculate associated radius for each sub-quadrant
+    radius = find_radius(max(vertical, horizontal)/2)
 
     # attempt four quadrants TL TR BL BR
     for x in range(0,4):
@@ -92,11 +95,10 @@ def get_places_at_location(location, radius):
     print('location: ', location)
     current_count = 0
     found_restaurants = []
-   
     query_result = google_places.nearby_search(
         radius = radius,
         location = location,
-        keyword = '',    
+        keyword = '',
         types = ['restaurant']
     )
 
@@ -110,7 +112,7 @@ def get_places_at_location(location, radius):
         if query_result.has_next_page_token:
             time.sleep(2)
             query_result = google_places.nearby_search(pagetoken=query_result.next_page_token)
-        else: 
+        else:
             break
 
     return found_restaurants
@@ -123,8 +125,11 @@ def parse_place(place):
     # set place to its details
     place = place.details
 
+    # converting geometry into location 
+    place['location'] = place['geometry']['location']
+    place['location']['lat'] = float(place['location']['lat'])
+    place['location']['lng'] = float(place['location']['lng'])
 
-    
     place['photos'] = photos
 
     # convert rating to a float
@@ -133,31 +138,25 @@ def parse_place(place):
     else:
         place['rating'] = float(0)
 
-    # converting location coordinates to float
-    if 'location' in place['geometry']:
-        place['location'] = {'lat':float(0), 'lng':float(0)}
-        place['location']['lat'] = float(place['geometry']['location']['lat'])
-        place['location']['lng'] = float(place['geometry']['location']['lng'])
-    else:
-        place['location']['lng'] = float(0)
-        place['location']['lat'] = float(0)
-
     # remove unnecessary entries
     del place['scope']
     del place['adr_address']
     del place['icon']
     del place['geometry']
 
+    # add city name
+    place['city'] = city
+
     return place
 
 def parse_photos(photos, limit=3):
-    all_photos = []
+    all_photos = {}
     count = 0
     for photo in photos:
         count += 1
-        all_photos.append(format_photo(photo))
-        if(count >= limit): 
-            break
+        photo_obj = format_photo(photo)
+        all_photos[photo_obj['id']] = photo_obj
+        if(count >= limit): break
     return all_photos
 
 def format_photo(photo):
@@ -166,14 +165,17 @@ def format_photo(photo):
     photo_inf['filename'] = photo.filename
     photo_inf['url'] = photo.url
     photo_inf['type'] = photo.mimetype
-    save_photo(photo)
+    photo_inf['id'] = save_photo(photo)
     return photo_inf
+
+def does_name_exist(name):
+    return len(glob.glob('./photos/'+name+'.*')) > 0
 
 def save_photo(photo):
     name = ''
     while True:
         name = uuid.uuid4().hex[:15]
-        if(not False): break # TODO: Fix this
+        if(not does_name_exist(name)): break
     file_type = photo.filename.split('.')[-1]
     photo_file = open('./photos/' + name + '.'+file_type, 'wb')
     photo_file.write(photo.data)
@@ -187,15 +189,13 @@ def add_to_db(found_restaurants):
 
         place.get_details()
         place = parse_place(place)
-        place['city'] = city
 
         db.restaurants.update_one(
             {'place_id':place['place_id']},
             {'$set':
-
                 place
             },
-            upsert=True
+                upsert=True
             )
 
 
