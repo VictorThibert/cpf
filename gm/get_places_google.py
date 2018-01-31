@@ -16,7 +16,7 @@ from geopy.distance import VincentyDistance
 import uuid
 
 # get API key from environment. TODO: use env file instead
-API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY")
+API_KEY = os.environ.get('GOOGLE_PLACES_API_KEY')
 google_places = GooglePlaces(API_KEY)
 
 all_restaurants = []
@@ -74,7 +74,7 @@ def traverse_quadrant(TL, BR, all_restaurants):
     for x in range(0,4):
 
         center = ','.join([str(centers[x][0]), str(centers[x][1])])
-        print("Center", center, "Radius", radius)
+        print('Center', center, 'Radius', radius)
         found_restaurants = get_places_at_location(center, radius)
 
         # subdivide if too many points in quadrant
@@ -85,11 +85,9 @@ def traverse_quadrant(TL, BR, all_restaurants):
             all_restaurants.extend(found_restaurants)
             add_to_db(found_restaurants)
 
-
-
 def get_places_at_location(location, radius):
 
-    print("location: ", location)
+    print('location: ', location)
     current_count = 0
     found_restaurants = []
    
@@ -104,8 +102,9 @@ def get_places_at_location(location, radius):
         for place in query_result.places:
             current_count += 1
             place.get_details()
+            place = parse_place(place)
             found_restaurants.append(place)
-            print(current_count, place)
+            print(current_count, place.name)
 
         if query_result.has_next_page_token:
             time.sleep(sleep_time)
@@ -114,6 +113,69 @@ def get_places_at_location(location, radius):
             break
 
     return found_restaurants
+
+def parse_place(place):
+
+    # reduce number of photos and parse
+    photos = parse_photos(place.photos)
+
+    # set place to its details
+    place = place.details
+
+    # remove unnecessary entries
+    del place['geometry']
+    del place['scope']
+    del place['adr_address']
+    del place['icon']
+    
+    place['photos'] = photos
+
+    # convert rating to a float
+    place['rating'] = float(place['rating'])
+
+    return place
+
+def parse_photos(photos, limit=3):
+    all_photos = []
+    count = 0
+    for photo in photos:
+        count += 1
+        all_photos.append(format_photo(photo))
+        if(count >= limit): 
+            break
+    return all_photos
+
+def format_photo(photo):
+    photo_inf = {}
+    photo.get(maxheight=500, maxwidth=500)
+    photo_inf['filename'] = photo.filename
+    photo_inf['url'] = photo.url
+    photo_inf['type'] = photo.mimetype
+    save_photo(photo)
+    return photo_inf
+
+def save_photo(photo):
+    name = ''
+    while True:
+        name = uuid.uuid4().hex[:15]
+        if(not False): break # TODO: Fix this
+    file_type = photo.filename.split('.')[-1]
+    photo_file = open('./photos/' + name + '.'+file_type, 'wb')
+    photo_file.write(photo.data)
+    photo_file.close()
+    return name
+
+
+def add_to_db(found_restaurants):
+    for place in found_restaurants:
+        db.montreal.update(
+            {'id':place.place_id},
+            {'$set':
+                place
+            },
+            upsert=True
+            )
+
 
 def convert_coordinates_to_string(coordinate):
     return ','.join([str(coordinate['lat']), str(coordinate['lng'])])
