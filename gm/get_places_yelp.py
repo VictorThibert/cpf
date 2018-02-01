@@ -25,7 +25,8 @@ DEFAULT_RADIUS = 200 # in meters
 DEFAULT_CATEGORIES = "restaurants"
 
 def update_db(details, place_id):
-	db.restaurants.update_one(
+
+    db.restaurants.update_one(
         {'place_id':place_id},
         {'$set':
             details
@@ -77,51 +78,52 @@ def query_api(term, categories, coordinates, radius):
     return response
 
 def search_yelp(place_name, location):
-	response = query_api(place_name, DEFAULT_CATEGORIES, location, DEFAULT_RADIUS)
+    response = query_api(place_name, DEFAULT_CATEGORIES, location, DEFAULT_RADIUS)
 
-	# only keep relevant details
-	details = {}
-	try:
-		details['yelp_review_count'] = response['review_count']
-		details['yelp_categories'] = response['categories']
-		details['yelp_id'] = response['id']
-		details['yelp_photos'] = response['photos']
-		details['yelp_rating'] = response['rating']
-		details['yelp_url'] = response['url']
-		details['yelp_location'] = response['location']
-		details['yelp_name'] = response['name']
-	except (TypeError, KeyError) :
-		details['yelp_review_count'] = None
-		details['yelp_categories'] = []
-		details['yelp_id'] = None
-		details['yelp_photos'] = []
-		details['yelp_rating'] = None
-		details['yelp_url'] = None
-		details['yelp_location'] = None
-		details['yelp_name'] = None
-	return details
+    # only keep relevant details
+    details = {}
+    try:
+        details['yelp_review_count'] = response['review_count']
+        details['yelp_categories'] = response['categories']
+        details['yelp_id'] = response['id']
+        details['yelp_photos'] = response['photos']
+        details['yelp_rating'] = response['rating']
+        details['yelp_url'] = response['url']
+        details['yelp_location'] = response['location']
+        details['yelp_name'] = response['name']
+    except (TypeError, KeyError) :
+        details['yelp_review_count'] = None
+        details['yelp_categories'] = []
+        details['yelp_id'] = None
+        details['yelp_photos'] = []
+        details['yelp_rating'] = None
+        details['yelp_url'] = None
+        details['yelp_location'] = None
+        details['yelp_name'] = None
+    return details
 
 # for each restaurant in db, query yelp and update with additional information
 def query_db():
-	for place in db.restaurants.find():
-		place_name = place['name']
-		location = place['location']
-		place_id = place['place_id']
+    for place in db.restaurants.find():
+        try:
+            place_name = place['name']
+            location = place['location']
+            place_id = place['place_id']
+        except KeyError:
+            print('Key Error')
 
-		print("")
-		print('-------------------------------------------')
-		print(place_name, location)
-		print('-------------------------------------------')
+        print(place_name, location)
 
-		details = search_yelp(place_name, location)
+        details = search_yelp(place_name, location)
 
-		update_db(details, place_id)
+        update_db(details, place_id)
 
 def main():
-	if API_KEY is None:
-		print("No API_KEY provided")
-		sys.exit(0)
-	query_db()
+    if API_KEY is None:
+        print("No API_KEY provided")
+        sys.exit(0)
+    query_db()
 
 if __name__ == '__main__':
-	main()
+    main()
+
