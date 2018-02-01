@@ -104,7 +104,15 @@ def search_yelp(place_name, location):
 
 # for each restaurant in db, query yelp and update with additional information
 def query_db():
-    for place in db.restaurants.find():
+    places = []
+    cursor = db.restaurants.find()
+
+    for place in cursor:
+        places.append(place)
+    cursor.close()
+
+    counter = 0
+    for place in places:
         try:
             place_name = place['name']
             location = place['location']
@@ -112,7 +120,8 @@ def query_db():
         except KeyError:
             print('Key Error')
 
-        print(place_name, location)
+        print(counter, place_name, location)
+        counter += 1
 
         details = search_yelp(place_name, location)
 
