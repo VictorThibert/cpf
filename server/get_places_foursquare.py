@@ -6,11 +6,13 @@ import json
 import pprint
 import requests
 import sys
+from bson.objectid import ObjectId
 import urllib
 from urllib.error import HTTPError
 from urllib.parse import quote
 from urllib.parse import urlencode
 from extensions import db
+import pprint
 
 CLIENT_KEY = os.environ.get('FOURSQUARE_CLIENT_KEY')
 SECRET_KEY = os.environ.get('FOURSQUARE_SECRET_KEY')
@@ -20,82 +22,81 @@ SECRET_KEY = os.environ.get('FOURSQUARE_SECRET_KEY')
 API_HOST = 'https://api.foursquare.com/v2'
 SEARCH_PATH = '/venues/search'
 VENUE_PATH = '/venues/' 
+VERSION = 20180102 ## YYYMMDD of the version we want to sue
 
 SEARCH_LIMIT = 3
 DEFAULT_RADIUS = 200 # in meters
 DEFAULT_CATEGORIES = "restaurants"
 
-def update_db(details, place_id): ## ERRR
+def update_db(details, _id):
     db.restaurants.update_one(
-        {'place_id':place_id},
+        {'_id': ObjectId(_id) },
         {'$set':
             details
         },
             upsert=True
         )
 
-def get_venue(api_key, venue_id):
-    business_path = VENUE_PATH + venue_id
-    return request(API_HOST, business_path, api_key)
-
-def request(host, path, api_key, url_params=None):
-    url_params = url_params or {}
-    url = '{0}{1}'.format(host, quote(path.encode('utf8')))
-    response = requests.request('GET', url, headers=headers, params=url_params)
-    return response.json()
-
-
-
-
-
-def search(api_key, term, categories, coordinates, radius): ## ERR
-    url_params = {
-        'term': term.replace(' ', '+'),
-        'latitude': coordinates['lat'],
-        'longitude': coordinates['lng'],
-        'radius': radius,
-        'limit': SEARCH_LIMIT,
-        'categories': categories,
-    }
-    return request(API_HOST, SEARCH_PATH, api_key, url_params=url_params)
-
-def query_api(term, categories, coordinates, radius): ## ERRR
-    response = search(API_KEY, term=term, categories=categories, coordinates=coordinates, radius=radius)
-    businesses = response.get('businesses')
-    if not businesses:
-        print('No businesses for {0} in {1}, {2} found.'.format(term, coordinates['lat'], coordinates['lng']))
-        return
-    # recover first business in returned set
-    business_id = businesses[0]['id']
-    # get more information about specific business
-    response = get_business(API_KEY, business_id)
-
-    return response
-
-def search_foursquare(place_name, location): ## ERR
-    response = query_api(place_name, DEFAULT_CATEGORIES, location, DEFAULT_RADIUS)
-
+def search_foursquare(place_name, location):
+    response = query_api(place_name, location)
+    response = response['response']['venue']
     # only keep relevant details
     details = {}
-    try:
-        details['foursquare_review_count'] = response['review_count']
-        details['foursquare_categories'] = response['categories']
-        details['foursquare_id'] = response['id']
-        details['foursquare_photos'] = response['photos']
-        details['foursquare_rating'] = response['rating']
-        details['foursquare_url'] = response['url']
-        details['foursquare_location'] = response['location']
-        details['foursquare_name'] = response['name']
-    except (TypeError, KeyError) :
-        details['foursquare_review_count'] = None
-        details['foursquare_categories'] = []
-        details['foursquare_id'] = None
-        details['foursquare_photos'] = []
-        details['foursquare_rating'] = None
-        details['foursquare_url'] = None
-        details['foursquare_location'] = None
-        details['foursquare_name'] = None
+    details['id'] = response['id']
+    details['likes'] = response['likes']
+    if(details['likes'] != False): details['likes'] = response['likes']['count']
+    else: details['likes'] = 0
+
+    if(response['dislike'] != False): details['dislike'] = response['dislike']['count']
+    else: details['dislike'] = 0
+
+    if(response['ok'] != False): response['ok'] = response['ok']['count']
+    else: details['ok'] = 0
     return details
+
+
+def get_venue(venue_id):
+    venue_path = VENUE_PATH + venue_id
+    params = {
+        'client_id':CLIENT_KEY,
+	'client_secret':SECRET_KEY,
+	'v':VERSION
+    }
+    return request(API_HOST, venue_path, url_params=params)
+
+def request(host, path, url_params={}):
+    url = '{0}{1}'.format(host, path)
+    print("going to get from the url: ", url)
+    response = requests.request('GET', url, params=url_params)
+    return response.json()
+
+def search(name, location):
+    ll = str(location['lat'])+','+str(location['lng'])
+    url_params = {
+        'client_id':CLIENT_KEY,
+	'client_secret':SECRET_KEY,
+	'v':VERSION,
+	'match':'intent',
+        'name': name,
+        'll':ll
+    }
+    return request(API_HOST, SEARCH_PATH, url_params=url_params)
+
+def query_api(name, location): 
+    response = search(name, location)
+    results = response['response']['venues']
+    if len(results) == 0:
+        print('No venue for {0} in {1}, {2} found.'.format(name, location['lat'], location['lng']))
+        return
+    venue_id = results[0]['id']
+    response = get_venue(venue_id)
+    return response
+
+# def my_print(obj):
+#   for a in obj.keys():
+#     print("key: ", a , " type: ", type(obj[a]))
+#     if(type(obj[a]) != str): print(a,"=",obj[a])
+#     else: print(a,"=", obj[a].encode('utf8'))
 
 # for each restaurant in db, query foursquare and update with additional information
 def query_db():
@@ -104,18 +105,20 @@ def query_db():
 
     counter = 0
     for place in cursor:
-        try:
-            place_name = place['name']
-            location = place['location']
-            place_id = place['place_id']
-        except KeyError:
-            print('Key Error')
-            continue
+        _id = place['_id']
+        print("_id: ", _id)
+        #place_utf = {k: (place[k]).encode("utf-8") for k in place.keys()}
+        #try:
+        place_name = place.get('name', None)
+        print("place_name: ", place_name.encode('utf-8'))
+        location = place.get('location', None)
+        print("location: ", location)
+        if(location == None or place_name == None): continue
+        place_name = place_name.encode('utf-8')
 
         print(counter, place_name, location)
         counter += 1
         details = search_foursquare(place_name, location)
-        update_db(details, place_id)
     cursor.close()
 
 def main():
