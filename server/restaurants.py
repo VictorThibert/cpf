@@ -1,3 +1,5 @@
+# handles information requests /restaurant queries
+
 from flask import Blueprint, render_template, abort, request, jsonify
 from bson.objectid import ObjectId
 import flask
@@ -8,10 +10,10 @@ restaurant = Blueprint('restaurant', __name__, url_prefix='/restaurant')
 photos_path='./photos/'
 logging.info("this is from the game file");
 
-@restaurant.route('/<rest_id>/info')
-def get_rest_info(rest_id):
-    """ gets info for a given restaurant """
-    _id = ObjectId(rest_id)
+# get restaurant information given a specific restaurant id (using MongoDB id)
+@restaurant.route('/<restaurant_id>/info')
+def get_restaurant_info(restaurant_id):
+    _id = ObjectId(restaurant_id)
     result = db.restaurants.find_one({
         '_id': _id
     },{
@@ -32,7 +34,30 @@ def get_info(rest_id, photo_id):
     if(len(res) == 0): return "photo id does not exist", 404
     return app.send_static_file('./photos/'+res[0])
 
+# get list of n top restaurants
 @restaurant.route('/get_list')
 def get_list():
-    pass
+    limit = request.args.get('limit')
 
+    # default: return 10 restaurants
+    if limit is None:
+        limit = 10
+
+    results = []
+    for place in db.restaurants.find({}).limit(int(limit)):
+        place = create_restaurant_response(place)
+        results.append(place)
+
+    return jsonify(results)
+
+def create_restaurant_response(place):
+    response = {}
+    response['_id'] = str(place.get('_id'))
+    response['name'] = place.get('name','')
+    response['location'] = place.get('location','')
+    response['formatted_phone_number'] = place.get('formatted_phone_number', '')
+    response['website'] =  place.get('website', '')
+    response['yelp_photos'] = place.get('yelp_photos', [])
+    response['yelp_location'] = place.get('yelp_location', {})
+
+    return response
