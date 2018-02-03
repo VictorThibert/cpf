@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import mapStyle from "../json/mapStyle.json";
 import { compose, withProps } from "recompose";
 import store from '../index.js';
+import {getRestaurantList} from '../utils/FetchData';
+import { changeCardInfo, removeTask, getPosts, receivePosts } from '../actions';
+
 
 import {
   withScriptjs,
@@ -33,8 +36,8 @@ const MyMapComponent = compose(
                 rotateControl: false,
                 fullscreenControl: false }} 
                 style={{ position:'absolute'}}>
-                <MapMarkers/>
-                {console.log(props)}
+                  <MapMarkers restaurants={props.restaurants} />
+                  {console.log(props,"googsboi")}
   </GoogleMap>
 ));
 
@@ -42,18 +45,19 @@ function MapMarkers(props){
   return(
       <div>
         {
-          store.getState().map((restaurant) => {
-            <Marker key={restaurant.id} position={{lat:-23,lng:150}} />
+          props.restaurants.map((restaurant) => {
+             return <Marker key={restaurant.id}{...restaurant} 
+             position={{ lat:restaurant.lat,lng:restaurant.lng }} 
+             onClick={()=> store.dispatch(changeCardInfo(restaurant.id)) } />
           })
         }
-        {console.log(store.getState(),"storeed map")}
       </div>
   )
 }
 
 const mapStateToProps = (state) => {
     return { 
-        markers: MapMarkers
+      restaurants: state
     };
 };
 

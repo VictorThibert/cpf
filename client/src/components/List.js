@@ -1,24 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { changeCardInfo, removeTask, getPosts, receivePosts } from '../actions';
 import RestaurantList from './RestaurantList';
 import InfoCard from './InfoCard';
-import store from '../index.js';
+import store from '../index';
+import {getRestaurantList} from '../utils/FetchData';
+import { changeCardInfo, removeTask, getPosts, receivePosts } from '../actions';
 
-
-function getRestaurantList(){
-    return dispatch => {
-        dispatch(getPosts)
-        return fetch(`data.json`)
-      .then((response) => {
-        return response.json()
-    })
-      .then(json => dispatch(receivePosts(json)))
-      .catch(error => {
-        console.log("fetch error: ", error);
-      })
-  }
-}
 
 // infoCard getRestaurantList is passed for the back button to refetch posts
 function List (props) {
