@@ -25,7 +25,7 @@ const MyMapComponent = compose(
   withScriptjs,
   withGoogleMap
 )(props => (
-  <GoogleMap defaultZoom={8} defaultCenter={{ lat: -23, lng: 150 }} 
+  <GoogleMap defaultZoom={8} center={{ lat: props.restaurants[0].lat, lng: props.restaurants[0].lng }} 
              defaultOptions={{ 
                 styles: mapStyle, 
                 streetViewControl: false,
@@ -46,9 +46,10 @@ function MapMarkers(props){
       <div>
         {
           props.restaurants.map((restaurant) => {
-             return <Marker key={restaurant.id}{...restaurant} 
-             position={{ lat:restaurant.lat,lng:restaurant.lng }} 
-             onClick={()=> store.dispatch(changeCardInfo(restaurant.id)) } />
+             return (<Marker key={restaurant.id}{...restaurant} 
+                      position={{ lat:restaurant.lat,lng:restaurant.lng }} 
+                      onClick={()=> store.dispatch(changeCardInfo(restaurant.id))} 
+                    />)
           })
         }
       </div>
