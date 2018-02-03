@@ -4,4 +4,5 @@ gm/photos
 gm/__pycache__/
 __pycache__/
 client/node_modules
-
+**/main.log
+**.swp
