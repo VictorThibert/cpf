@@ -32,14 +32,14 @@ def get_google_results(location='Montreal, Canada', radius=20000, limit=60):
         else: break
 
 def parse_photos(photos, limit=3):
-    all_photos = {}
+    all_photos = []
     num = 0
     print("parsing photos")
     for photo in photos:
         num += 1
         print("parsing photo: ", photo)
         photo_obj = parse_photo(photo)
-        all_photos[photo_obj['id']] = photo_obj
+        all_photos.append(photo_obj)
         if(num == limit): break
     return all_photos
 def parse_photo(photo):

@@ -149,12 +149,12 @@ def parse_place(place):
     return place
 
 def parse_photos(photos, limit=3):
-    all_photos = {}
+    all_photos = []
     count = 0
     for photo in photos:
         count += 1
         photo_obj = format_photo(photo)
-        all_photos[photo_obj['id']] = photo_obj
+        all_photos.append(photo_obj)
         if(count >= limit): break
     return all_photos
 
