@@ -1,18 +1,18 @@
 {
-  "name": "cpf",
+  "name": "minimal-react",
   "version": "1.0.0",
-  "description": "cpf",
+  "description": "Minimal React.js starter kit for experiments.",
   "main": "./src/index.js",
   "scripts": {
     "start": "webpack-dev-server"
   },
-  "repository": "https://github.com/VictorThibert/cpf.git",
+  "repository": "https://github.com/BatenkovT/Minimal-React.git",
   "keywords": [
     "react",
     "webpack",
     "starter-kit"
   ],
-  "author": "cpf",
+  "author": "BatenkovT",
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^4.0.0-beta.3",
