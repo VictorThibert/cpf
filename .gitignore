@@ -3,3 +3,4 @@ server/photos
 gm/photos
 gm/__pycache__/
 __pycache__/
+**/main.log
