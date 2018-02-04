@@ -21,7 +21,7 @@ SECRET_KEY = os.environ.get('FOURSQUARE_SECRET_KEY')
 # api constants
 API_HOST = 'https://api.foursquare.com/v2'
 SEARCH_PATH = '/venues/search'
-VENUE_PATH = '/venues/' 
+VENUE_PATH = '/venues/'
 VERSION = 20180102 ## YYYMMDD of the version we want to sue
 
 SEARCH_LIMIT = 3
@@ -66,7 +66,7 @@ def get_venue(venue_id):
 
 def request(host, path, url_params={}):
     url = '{0}{1}'.format(host, path)
-    print("going to get from the url: ", url)
+    #print("going to get from the url: ", url)
     response = requests.request('GET', url, params=url_params)
     return response.json()
 
@@ -82,7 +82,7 @@ def search(name, location):
     }
     return request(API_HOST, SEARCH_PATH, url_params=url_params)
 
-def query_api(name, location): 
+def query_api(name, location):
     response = search(name, location)
     results = response['response']['venues']
     if len(results) == 0:
@@ -119,6 +119,7 @@ def query_db():
         print(counter, place_name, location)
         counter += 1
         details = search_foursquare(place_name, location)
+        update_db(details, _id)
     cursor.close()
 
 def main():
