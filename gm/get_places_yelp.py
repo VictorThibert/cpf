@@ -20,7 +20,7 @@ API_HOST = 'https://api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH = '/v3/businesses/' 
 
-SEARCH_LIMIT = 1
+SEARCH_LIMIT = 5
 DEFAULT_RADIUS = 50 # in meters
 DEFAULT_CATEGORIES = "restaurants"
 
