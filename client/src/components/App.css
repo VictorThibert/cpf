@@ -7,6 +7,7 @@ body {
     text-align: center;
     padding:0;
     margin:0;
+    overflow: hidden;
 }
 p {
     font-size: 14px;
@@ -46,6 +47,8 @@ input {
     position: absolute;
     right: 0;
     top:0;
+    width:33%;
+    min-width: 300px;
 }
 .list {
     float: left;
@@ -102,4 +105,17 @@ input {
     color: #fff;
     cursor: pointer;
     background-color: #fd5b71;
+}
+
+.restaurantList{
+    padding:5px;
+}
+.restaurantList{
+    background-image: url('~/../../static/city-card-1.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    min-height: 400px;
+    max-height: 100vh;
+    overflow-y: scroll;
+
 }
