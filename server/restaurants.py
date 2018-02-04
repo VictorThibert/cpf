@@ -7,6 +7,8 @@ import logging
 from extensions import db
 
 restaurant = Blueprint('restaurant', __name__, url_prefix='/restaurant')
+photos_path='./photos/'
+logging.info("this is from the game file");
 
 # get restaurant information given a specific restaurant id (using MongoDB id)
 @restaurant.route('/<restaurant_id>/info')
@@ -26,16 +28,11 @@ def get_restaurant_info(restaurant_id):
     result['success'] = True
     return jsonify(result)
 
-# get photos 
-@restaurant.route('/<restaurant_id>/photo/<photo_id>')
-def get_info(restaurant_id, photo_id):
-    result = db.restaurants.find_one({
-        'id':restaurant_id,
-        'photos.filename':photo_id
-    })
-
-    photo_filepath = result[photo_id]['filepath']
-    return app.send_static_file('./photos/' + photo_filepath)
+@restaurant.route('/photos/<photo_id>')
+def get_info(rest_id, photo_id):
+    res = glob.glob(photos_path + photo_id+"*")
+    if(len(res) == 0): return "photo id does not exist", 404
+    return app.send_static_file('./photos/'+res[0])
 
 # get list of n top restaurants
 @restaurant.route('/get_list')
