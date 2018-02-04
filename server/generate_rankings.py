@@ -27,7 +27,7 @@ def main():
 
     # temporary offset TODO: fix
     # offset if yelp_review_count exists
-    offset = 0.4
+    offset = 0.7
 
     for place in response:
         yelp_rating = get_yelp_rating(place)
