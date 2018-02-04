@@ -21,7 +21,7 @@ def average_city_rating(city):
 def get_weighted_rating(rating, review_count, city, city_rating=None):
 	m = 20 # minimum number of ratings required
 
-	if city_rating is None:
+	if city_rating == None:
 		city_rating = average_city_rating(city) # mean vote across city
 
 	weighted_rating =  (review_count / (review_count + m)) * rating + (m / (review_count + m)) * city_rating
@@ -31,12 +31,16 @@ def get_weighted_rating(rating, review_count, city, city_rating=None):
 def get_google_rating(place):
 	return place.get('rating', 0.0)
 
-def get_yelp_ratings(place):
+def get_yelp_rating(place):
 	return place.get('yelp_rating', 0.0)
 
 def get_combined_rating(ratings):
+	# remove 0.0 ratings
+	ratings = list(filter(lambda x: x > 0.0, ratings))
+	if len(ratings) == 0:
+		return 0
 	# ratings as an array 
-	return sum(ratings)/len(ratings)
+	return round(sum(ratings)/len(ratings),2)
 
 def main():
 	city = 'montreal'
