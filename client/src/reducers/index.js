@@ -35,7 +35,7 @@ const restaurants = (state = [], action) => {
         case 'CHANGE_CARD_INFO':
             console.log(action.id);
             return state.filter(restaurant=>
-                restaurant.id==action.id   
+                restaurant._id == action.id   
             );
         default:
             return state;

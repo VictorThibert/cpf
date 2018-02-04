@@ -6,10 +6,12 @@ import thunkMiddleware from 'redux-thunk';
 import { Provider } from 'react-redux';
 import restaurants from './reducers';
 import App from './components/App';
-import initialData from '../data';
+import {initialData,getRestaurantList} from './utils/FetchData';
+import data from '../data/index'
+
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(restaurants, initialData, composeEnhancers(
+const store = createStore(restaurants, data, composeEnhancers(
     applyMiddleware(
         thunkMiddleware,
         promiseMiddleware()

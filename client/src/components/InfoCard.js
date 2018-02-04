@@ -4,9 +4,8 @@ function InfoCard (props){
     return (
         <div className="project-card" >
         <div onClick={() => props.onChangeClick()}> {'<Back'}</div>
-            <p className="card-text">{props.restaurantInfo[0].image}</p> 
-            <span className="card-executor">{props.restaurantInfo[0].executor}</span> 
-            <span>This place costs {props.restaurantInfo[0].cost}</span>
+        <h2>{props.restaurantInfo[0].name}</h2>
+        <img style={{ width: 70, height: 61 }} src={props.restaurantInfo[0].yelp_photos[0]||"../static/placeholder.png"} />
         </div>
     );
 };

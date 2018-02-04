@@ -14,3 +14,11 @@ export const getRestaurantList = () => {
       })
   }
 }
+
+export const initialData = () => {
+  return fetch('data.json')
+  .then((response) => {
+    console.log(response.json(),"derp")
+        return response.json()
+    })
+}

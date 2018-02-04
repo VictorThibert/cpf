@@ -6,13 +6,16 @@ import store from '../index.js';
 import {getRestaurantList} from '../utils/FetchData';
 import { changeCardInfo, removeTask, getPosts, receivePosts } from '../actions';
 
-
 import {
   withScriptjs,
   withGoogleMap,
   GoogleMap,
   Marker
 } from "react-google-maps";
+
+//temporary until we get users location permission
+const LAT = 45.50144299999999;
+const LNG = -73;
 
 const MyMapComponent = compose(
   withProps({
@@ -25,7 +28,7 @@ const MyMapComponent = compose(
   withScriptjs,
   withGoogleMap
 )(props => (
-  <GoogleMap defaultZoom={8} center={{ lat: props.restaurants[0].lat, lng: props.restaurants[0].lng }} 
+  <GoogleMap defaultZoom={8} center={{ lat: LAT, lng: LNG}} 
              defaultOptions={{ 
                 styles: mapStyle, 
                 streetViewControl: false,
@@ -46,10 +49,12 @@ function MapMarkers(props){
       <div>
         {
           props.restaurants.map((restaurant) => {
-             return (<Marker key={restaurant.id}{...restaurant} 
-                      position={{ lat:restaurant.lat,lng:restaurant.lng }} 
-                      onClick={()=> store.dispatch(changeCardInfo(restaurant.id))} 
+            if(restaurant.location!=""){
+             return (<Marker key={restaurant._id}
+                      position={{ lat:restaurant.location.lat, lng:restaurant.location.lng }} 
+                      onClick={()=> store.dispatch(changeCardInfo(restaurant._id))} 
                     />)
+            }
           })
         }
       </div>
