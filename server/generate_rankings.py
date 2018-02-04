@@ -52,6 +52,7 @@ def main():
 
         reference = place.get('_id')
         name = place.get('name')
+        print(name, combined_rating)
         insert_weighted_ratings(reference, name, combined_rating)
 
 
