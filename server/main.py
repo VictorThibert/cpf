@@ -18,6 +18,6 @@ def mainPage():
 if __name__ == "__main__":
     print("starting the server app.run()");
     app.debug = True;
-    app.run(port=4000)
+    app.run(port=4000, host='0.0.0.0')
 
 
