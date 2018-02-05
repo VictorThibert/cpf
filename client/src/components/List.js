@@ -10,9 +10,7 @@ import { changeCardInfo, removeTask, getPosts, receivePosts } from '../actions';
 // infoCard getRestaurantList is passed for the back button to refetch posts
 function List (props) {
     return (
-        <div className={`list ${status.toLowerCase()}-list`}>
-            <h5>{props.children} <span>{props.restaurants.length}</span></h5>
-            <h1>{props.restaurantID} dog </h1>
+        <div className={`restaurantList header`}>
             {
             (props.restaurants.length>1)?
             props.restaurants.map((restaurant) => 
