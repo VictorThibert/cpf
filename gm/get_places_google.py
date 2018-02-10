@@ -116,20 +116,21 @@ def get_places_at_location(location, radius):
 
 def exists_in_db(place):
     return db.montreal.find({'place_id':place['place_id']}).count() > 0
+
 def parse_place(place):
 
     # set place to its details
     place = place.details
 
     # reduce number of photos and parse
-    photos = parse_photos(place.photos)
+    #photos = parse_photos(place.get('photos',{}))
 
     # converting geometry into location
     place['location'] = place['geometry']['location']
     place['location']['lat'] = float(place['location']['lat'])
     place['location']['lng'] = float(place['location']['lng'])
 
-    place['photos'] = photos
+    #place['photos'] = photos
 
     # convert rating to a float
     if 'rating' in place:
