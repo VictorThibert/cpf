@@ -24,14 +24,15 @@ class CardCustom extends React.Component {
 
 
         const image = ( 
-            <Reveal animated='move'>
-                <Reveal.Content visible>
-                    <Image src={this.props.image1}/>
-                </Reveal.Content>
-                <Reveal.Content hidden>
-                 <Image src={this.props.image2}/>
-                </Reveal.Content>
-            </Reveal>
+            //<Reveal animated='move'>
+            //    <Reveal.Content visible>
+            //        <Image src={this.props.image1}/>
+            //    </Reveal.Content>
+            //    <Reveal.Content hidden>
+            //     <Image src={this.props.image2}/>
+            //    </Reveal.Content>
+            //</Reveal>
+            <Image src={this.props.image1}/>
         )
             
 
