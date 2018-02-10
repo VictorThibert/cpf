@@ -12,16 +12,20 @@ class App extends Component {
 
   constructor() {
     super();
+    // default starting card values
     this.state = {
-      restaurantName: 'R1',
-      image: '' // default image
+      restaurantName: '',
+      image: '',
+      price:''
     }
   }
 
   changeCard(restaurant) {
     this.setState({
       restaurantName:restaurant.name,
-      image:restaurant.yelp_photos[0]
+      image:restaurant.yelp_photos[0],
+      price:restaurant.yelp_price_level
+
     });
   }
 
@@ -29,7 +33,7 @@ class App extends Component {
     return (
       <div>
         <Gmap changeCard={this.changeCard.bind(this)} text={this.state.restaurantName}/>
-        <CardCustom restaurantName={this.state.restaurantName} image={this.state.image}/>
+        <CardCustom restaurantName={this.state.restaurantName} image={this.state.image} price={this.state.price}/>
       </div>
     );
   }

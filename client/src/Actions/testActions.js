@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export function fetchRestaurants(limit) {
-	const url = 'http://cherrypicker.io:4000/restaurant/get_list?limit=' + '100';
+	const url = 'http://cherrypicker.io:4000/restaurant/get_list?limit=' + limit;
 
 	return function(dispatch) {
 		axios.get(url)

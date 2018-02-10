@@ -14,14 +14,14 @@ const extra = (
   </a>
 )
 
-class CardExampleCard extends React.Component {
+class CardCustom extends React.Component {
 	render() {
 		return (
 			<Card
 				image={this.props.image}
 				style={style}
 				header={this.props.restaurantName}
-				meta='Friend'
+				meta={this.props.price}
 				description='Elliot is a sound engineer living in Nashville who enjoys playing guitar and hanging with his cat.'
 				extra={extra}
 			/> 
@@ -29,7 +29,7 @@ class CardExampleCard extends React.Component {
 	}
 }
 
-export default CardExampleCard
+export default CardCustom
 
 // import React from 'react';
 

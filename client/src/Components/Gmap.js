@@ -8,14 +8,15 @@ class Gmap extends React.PureComponent {
     state = {
         isMarkerShown: true,
         lat: 45.5,
-        lng: -73.59
+        lng: -73.59,
+        fetchLimit: 20
     }
 
     componentDidMount() {
     }
 
     componentWillMount() {
-        this.props.dispatch(fetchRestaurants(10)); // ensures that fetch is performed
+        this.props.dispatch(fetchRestaurants(this.state.fetchLimit)); // ensures that fetch is performed
     }
 
     delayedShowMarker = (time) => {
