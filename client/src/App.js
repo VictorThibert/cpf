@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-import Gmap from './Components/Gmap';
-import CardCustom from './Components/CardCustom.js';
+import Gmap from './components/Gmap';
+import CardCustom from './components/CardCustom.js';
 
 import 'semantic-ui-css/semantic.min.css';
 
