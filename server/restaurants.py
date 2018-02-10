@@ -59,5 +59,6 @@ def create_restaurant_response(place):
     response['website'] =  place.get('website', '')
     response['yelp_photos'] = place.get('yelp_photos', [])
     response['yelp_location'] = place.get('yelp_location', {})
+    response['yelp_price'] = place.get('yelp_price', '')
 
     return response

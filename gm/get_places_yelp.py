@@ -91,6 +91,7 @@ def search_yelp(place_name, location):
         details['yelp_url'] = response['url']
         details['yelp_location'] = response['location']
         details['yelp_name'] = response['name']
+        details['yelp_price'] = response['price']
     except (TypeError, KeyError) :
         details['yelp_review_count'] = None
         details['yelp_categories'] = []
@@ -100,6 +101,7 @@ def search_yelp(place_name, location):
         details['yelp_url'] = None
         details['yelp_location'] = None
         details['yelp_name'] = None
+        details['yelp_place'] = None
     return details
 
 # for each restaurant in db, query yelp and update with additional information
