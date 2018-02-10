@@ -1,42 +1,51 @@
 import React from 'react';
-import { Card, Icon, Image } from 'semantic-ui-react';
+import { Card, Icon, Image, Reveal } from 'semantic-ui-react';
 
 const style = {
-		position:'absolute',
-		top: '50px',
-		right: '60px',
-	};
-
+        position:'absolute',
+        top: '50px',
+        right: '60px',
+};
 
 
 class CardCustom extends React.Component {
-	render() {
+    render() {
 
-		
-		let extra;
-		if (this.props.website != ''){
-			extra = (
-			  <a href={this.props.website}>
-			    <Icon name='food'/>
-			    Website
-			  </a>
-			)
-		} else {
-			extra = ''
-		}
-			
 
-		return (
-			<Card
-				image={this.props.image}
-				style={style}
-				header={this.props.restaurantName}
-				meta={this.props.price}
-				description={this.props.description}
-				extra={extra}
-			/> 
-		)
-	}
+        let extra;
+        if (this.props.website != ''){
+            extra = (
+              <a href={this.props.website}>
+                <Icon name='food'/>
+                Website
+              </a>
+            )
+        } 
+
+
+        const image = ( 
+            <Reveal animated='move'>
+                <Reveal.Content visible>
+                    <Image src={this.props.image1}/>
+                </Reveal.Content>
+                <Reveal.Content hidden>
+                 <Image src={this.props.image2}/>
+                </Reveal.Content>
+            </Reveal>
+        )
+            
+
+        return (
+            <Card
+                image={image}
+                style={style}
+                header={this.props.restaurantName}
+                meta={this.props.price}
+                description={this.props.description}
+                extra={extra}
+            /> 
+        )
+    }
 }
 
 export default CardCustom
@@ -45,24 +54,24 @@ export default CardCustom
 
 // class Card extends React.Component {
 
-// 	constructor() {
-// 		super();
-// 		this.test='HelloWorld';
-// 	}
+//  constructor() {
+//      super();
+//      this.test='HelloWorld';
+//  }
 
-// 	render() {
-// 		const style = {
-// 			position:'absolute',
-// 			top: '80px',
-// 			right: '50px',
-// 		};
+//  render() {
+//      const style = {
+//          position:'absolute',
+//          top: '80px',
+//          right: '50px',
+//      };
 
-// 		return (
-// 			<div style={style}>
-// 				<h2> {this.props.text} </h2>
-// 			</div>
-// 		)
-// 	}
+//      return (
+//          <div style={style}>
+//              <h2> {this.props.text} </h2>
+//          </div>
+//      )
+//  }
 
 // }
 
