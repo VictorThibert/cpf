@@ -24,7 +24,7 @@ class App extends Component {
     this.setState({
       restaurantName:restaurant.name,
       image:restaurant.yelp_photos[0],
-      price:restaurant.yelp_price_level
+      price:restaurant.yelp_price
 
     });
   }
