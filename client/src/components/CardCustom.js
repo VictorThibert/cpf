@@ -7,22 +7,32 @@ const style = {
 		right: '60px',
 	};
 
-const extra = (
-  <a>
-    <Icon name='user' />
-    16 Friends
-  </a>
-)
+
 
 class CardCustom extends React.Component {
 	render() {
+
+		
+		let extra;
+		if (this.props.website != ''){
+			extra = (
+			  <a href={this.props.website}>
+			    <Icon name='food'/>
+			    Website
+			  </a>
+			)
+		} else {
+			extra = ''
+		}
+			
+
 		return (
 			<Card
 				image={this.props.image}
 				style={style}
 				header={this.props.restaurantName}
 				meta={this.props.price}
-				description='Elliot is a sound engineer living in Nashville who enjoys playing guitar and hanging with his cat.'
+				description={this.props.description}
 				extra={extra}
 			/> 
 		)
