@@ -31,7 +31,7 @@ sleep_time = 2 # 0 if using .get_details, 2 if not
 
 # TODO: issue with converting grid to lat/lng due to curvature of earth
 # TODO: standardize coordinate represenation (dictionry, vs (x,y) pair, etc.)
-# verify that current approximation works on city scales
+# TODO: Optimize
 
 def traverse_quadrant(TL, BR):
 
@@ -146,6 +146,11 @@ def parse_place(place):
 
     # add city name
     place['city'] = city
+
+    place['geo_json'] = {
+        'type':'Point',
+        'coordinates': [float(place['location']['lng']), float(place['location']['lat'])]
+    }
 
     return place
 
