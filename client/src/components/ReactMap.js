@@ -1,7 +1,11 @@
+/* eslint-disable no-undef */
+// this above line is critical, do not remove 
+
 import React from 'react';
 import { compose, withProps } from 'recompose';
-import { withScriptjs, withGoogleMap, GoogleMap, Marker } from 'react-google-maps';
+import { withScriptjs, withGoogleMap, GoogleMap, Marker, Size } from 'react-google-maps';
 import mapStyle from '../mapStyle.json';
+
 
 const ReactMap = compose(
   withProps({
@@ -29,13 +33,20 @@ const ReactMap = compose(
         ref={(map) => map && map.panTo({lat: props.lat,lng: props.lng})}
     >
 
+  
+
     {generateMarkers(props)}
     </GoogleMap>
 )
 
 
-const generateMarkers = (props) => {
+const generateMarkers = (props, x) => {
     const restaurants = props.restaurants;
+
+    const image = {
+        url: 'https://i.cubeupload.com/oBkz6c.png',
+        scaledSize: new google.maps.Size(28, 50)
+    };
 
     const restaurantMarkers = restaurants.map(restaurant => 
         <Marker 
@@ -48,6 +59,7 @@ const generateMarkers = (props) => {
                 props.panTo(restaurant.location.lat, restaurant.location.lng)
                 props.onMarkerClick(restaurant)
             }}
+            icon = {image}
         />
     )
     

@@ -9,7 +9,7 @@ class Gmap extends React.PureComponent {
         isMarkerShown: true,
         lat: 45.5,
         lng: -73.59,
-        fetchLimit: 20
+        fetchLimit: 10
     }
 
     componentDidMount() {
