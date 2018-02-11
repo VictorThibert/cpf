@@ -1,10 +1,12 @@
 # handles information requests /restaurant queries
-
-from flask import Blueprint, render_template, abort, request, jsonify
-from bson.objectid import ObjectId
 import flask
+import geopy.distance
 import logging
+
+from bson.objectid import ObjectId
 from extensions import db
+from flask import Blueprint, render_template, abort, request, jsonify
+
 
 restaurant = Blueprint('restaurant', __name__, url_prefix='/restaurant')
 
@@ -40,11 +42,19 @@ def get_info(restaurant_id, photo_id):
 # get list of n top restaurants
 @restaurant.route('/get_list')
 def get_list():
-    limit = request.args.get('limit')
 
-    # default: return 10 restaurants
+    # argument list
+    limit = request.args.get('limit')
+    coordinates = request.args.get('coordinates')
+    city = request.args.get('city')
+    maximum_distance = request.args.get('maximum_distance')
+    minimum_score = request.args.get('minimum_score')
+
+    # default: return 10 restaurants TODO: convert to .get('limit',10)
     if limit is None:
         limit = 10
+
+db.restaurants.find({'rating':{'$gt':4.5}, 'yelp_review_count':{'$gt':100}},{'name':1}).limit(10)
 
     results = []
     for place in db.restaurants.find({}).limit(int(limit)):
@@ -64,3 +74,11 @@ def create_restaurant_response(place):
     response['yelp_location'] = place.get('yelp_location', {})
 
     return response
+
+def get_distance(coordinates_1, coordinates_2):  # coordinates of the form (a,b)
+    distance = 0
+    try: 
+        distance = geopy.distance.vincenty(coordinates_1, coordinates_2).m
+    except ValueError:
+        return sys.maxsize
+    return distance

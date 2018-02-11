@@ -4,3 +4,12 @@ WARNING:werkzeug: * Debugger is active!
 INFO:werkzeug: * Debugger PIN: 308-593-998
 WARNING:werkzeug: * Debugger is active!
 INFO:werkzeug: * Debugger PIN: 308-593-998
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 16:11:14] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 16:11:15] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 16:12:33] "GET /get_list HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 16:12:37] "GET /get_list?limit=1 HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 16:12:44] "GET /restaurants/get_list?limit=1 HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 16:12:48] "GET /restaurant/get_list?limit=1 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 16:12:51] "GET /restaurant/get_list HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 16:13:03] "GET /restaurant/get_list?limit=1 HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in '/Users/victorthibert/Projects/cpf/server/restaurants.py', reloading
