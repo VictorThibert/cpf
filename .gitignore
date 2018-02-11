@@ -20,5 +20,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-gm/photos/*
 node_modules/*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+*main.log*
+*.log
