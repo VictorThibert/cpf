@@ -7,6 +7,7 @@ import { withScriptjs, withGoogleMap, GoogleMap, Marker, Size } from 'react-goog
 import mapStyle from '../mapStyle.json';
 
 
+
 const ReactMap = compose(
   withProps({
     googleMapURL: 'https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places',
@@ -18,7 +19,7 @@ const ReactMap = compose(
   withGoogleMap
 )((props) =>
     <GoogleMap
-        defaultZoom={12}
+        defaultZoom={13}
         defaultCenter={{ lat: 45.5, lng: -73.59 }}
         defaultOptions={{ 
         styles: mapStyle, 
@@ -39,13 +40,19 @@ const ReactMap = compose(
     </GoogleMap>
 )
 
+const radishUrl = () => {
+    const urls = ['https://i.cubeupload.com/vlRjoX.png','https://i.cubeupload.com/59rMZk.png', 'https://i.cubeupload.com/fECBqI.png', 'https://i.cubeupload.com/Y6xxXO.png', 'https://i.cubeupload.com/9XPydS.png'];
+    const random = Math.floor(Math.random() * urls.length);
+    return urls[random]
+}
 
-const generateMarkers = (props, x) => {
+
+const generateMarkers = (props) => {
     const restaurants = props.restaurants;
-
+    const n = 6;
     const image = {
-        url: 'https://i.cubeupload.com/oBkz6c.png',
-        scaledSize: new google.maps.Size(28, 50)
+        url: radishUrl(),
+        scaledSize: new google.maps.Size(198/n, 281/n)
     };
 
     const restaurantMarkers = restaurants.map(restaurant => 
@@ -59,7 +66,10 @@ const generateMarkers = (props, x) => {
                 props.panTo(restaurant.location.lat, restaurant.location.lng)
                 props.onMarkerClick(restaurant)
             }}
-            icon = {image}
+            icon = {{
+        url: radishUrl(),
+        scaledSize: new google.maps.Size(198/n, 281/n)
+    }}
         />
     )
     
