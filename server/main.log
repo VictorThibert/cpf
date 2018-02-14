@@ -89,3 +89,7 @@ INFO:werkzeug: * Debugger PIN: 308-593-998
 INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 21:39:08] "GET /restaurant/get_list?coordinates=45.5,-73.56&limit=5&maximum_distance=1000&minimum_score=4.5 HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 21:47:25] "GET /restaurant/get_list?coordinates=45.5,-73.56&limit=5&maximum_distance=1000&minimum_score=4.5 HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 21:47:26] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 23:13:20] "GET /restaurant/get_list?coordinates=45.5,-73.56&limit=5&maximum_distance=1000&minimum_score=4.5 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 23:13:28] "GET /restaurant/get_list?coordinates=45.5,-73.56&limit=5&maximum_distance=1000&minimum_score=5 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 23:13:32] "GET /restaurant/get_list?coordinates=45.5,-73.56&limit=5&maximum_distance=1000&minimum_score=4.9 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Feb/2018 23:13:52] "GET /restaurant/get_list?coordinates=45.5,-73.56&limit=1000&maximum_distance=1000&minimum_score=4.9 HTTP/1.1" 200 -

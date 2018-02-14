@@ -40,16 +40,26 @@ const ReactMap = compose(
     </GoogleMap>
 )
 
-const radishUrl = () => {
-    const urls = ['https://i.cubeupload.com/vlRjoX.png','https://i.cubeupload.com/59rMZk.png', 'https://i.cubeupload.com/fECBqI.png', 'https://i.cubeupload.com/Y6xxXO.png', 'https://i.cubeupload.com/9XPydS.png'];
-    const random = Math.floor(Math.random() * urls.length);
-    return urls[random]
+const radishUrl = (i, number_of_restaurants) => {
+    const prefix = 'https://i.cubeupload.com/'
+    const urls = ['ThtjvX.png', 'AgvJ9m.png', '8Kjxl6.png', 'A1SNk0.png', 'G9jJuq.png', 'UvY6j5.png', '2i3cWq.png', 'Z2fQ7e.png', 'fwblGv.png', 'Lfuk8Z.png'];
+    const bins = Math.floor(number_of_restaurants/urls.length);
+    
+    return prefix + urls[Math.floor(i/(bins))]
 }
 
 
 const generateMarkers = (props) => {
     const restaurants = props.restaurants;
-    const n = 6;
+
+
+    // temporary sort for marker testing
+    restaurants.sort((a,b) => {
+        return a.location.lng - b.location.lng
+    })
+    let i = 0
+
+    const n = 6; // temporary divisor for icon size
     const image = {
         url: radishUrl(),
         scaledSize: new google.maps.Size(198/n, 281/n)
@@ -67,10 +77,10 @@ const generateMarkers = (props) => {
                 props.onMarkerClick(restaurant)
             }}
             icon = {{
-        url: radishUrl(),
-        scaledSize: new google.maps.Size(198/n, 281/n)
-    }}
-        />
+                url: radishUrl(i++, restaurants.length),
+                scaledSize: new google.maps.Size(198/n, 281/n)
+            }}
+        /> 
     )
     
     return (
