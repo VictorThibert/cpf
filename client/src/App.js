@@ -37,7 +37,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <Gmap changeCard={this.changeCard.bind(this)} text={this.state.restaurantName}/>
+        <Gmap changeCard={this.changeCard.bind(this)}/>
         <CardCustom 
           restaurantName={this.state.restaurantName} 
           image1={this.state.image1} 

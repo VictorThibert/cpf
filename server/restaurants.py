@@ -1,10 +1,12 @@
 # handles information requests /restaurant queries
-
-from flask import Blueprint, render_template, abort, request, jsonify
-from bson.objectid import ObjectId
 import flask
+import geopy.distance
 import logging
+
+from bson.objectid import ObjectId
 from extensions import db
+from flask import Blueprint, render_template, abort, request, jsonify
+
 
 restaurant = Blueprint('restaurant', __name__, url_prefix='/restaurant')
 photos_path='./photos/'
@@ -37,18 +39,35 @@ def get_info(rest_id, photo_id):
 # get list of n top restaurants
 @restaurant.route('/get_list')
 def get_list():
-    limit = request.args.get('limit')
 
-    # default: return 10 restaurants
-    if limit is None:
-        limit = 10
+    result_set = []
+    search_set = {}
 
-    results = []
-    for place in db.restaurants.find({}).limit(int(limit)):
+    DEFAULT_LIMIT = 10
+    DEFAULT_MAXIMUM_DISTANCE = 30000
+    DEFAULT_MINIMUM_SCORE = 0
+
+    # argument list TODO: document api
+    limit = int(request.args.get('limit', DEFAULT_LIMIT))
+    coordinates = request.args.get('coordinates', None) # given in the form of a string 'lat,lng' (not good to use brackets of any kind in urls)
+    maximum_distance = float(request.args.get('maximum_distance', DEFAULT_MAXIMUM_DISTANCE))
+    minimum_score = float(request.args.get('minimum_score', DEFAULT_MINIMUM_SCORE))
+
+    if coordinates is not None:
+        lat, lng = coordinates.split(',')
+        lat, lng = [float(lat), float(lng)]
+        search_set = db.restaurants.find({
+            'geo_json':{'$geoWithin':{'$centerSphere':[[lng, lat], meters_to_radians(maximum_distance)]}},
+            'rating':{'$gt':minimum_score}
+            }).sort('rating', -1).limit(limit)
+    else:
+        search_set = db.restaurants.find({'rating':{'$gt':minimum_score}}).sort('rating', -1).limit(int(limit))
+    
+    for place in search_set:
         place = create_restaurant_response(place)
-        results.append(place)
+        result_set.append(place)
 
-    return jsonify(results)
+    return jsonify(result_set)
 
 def create_restaurant_response(place):
     response = {}
@@ -62,3 +81,9 @@ def create_restaurant_response(place):
     response['yelp_price'] = place.get('yelp_price', '')
 
     return response
+
+def meters_to_radians(meters):
+    miles = meters / 1609.34
+    radians = miles / 3963.20
+    return radians
+
