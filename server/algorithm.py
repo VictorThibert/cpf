@@ -40,7 +40,7 @@ def get_combined_rating(ratings):
 	if len(ratings) == 0:
 		return 0
 	# ratings as an array 
-	return round(sum(ratings)/len(ratings),2)
+	return round(sum(ratings)/len(ratings), 2)
 
 def main():
 	city = 'montreal'

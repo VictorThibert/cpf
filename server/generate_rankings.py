@@ -4,10 +4,12 @@
 from algorithm import get_weighted_rating, get_google_rating, get_yelp_rating, get_combined_rating
 from extensions import db
 
-def query_db(city):
+# get all restaurants for a given city
+def get_all_restaurants_cursor(city):
     response = db.restaurants.find({'city':{'$eq':city}})
     return response
 
+# update the db with the weighted ratings
 def insert_weighted_ratings(reference, name, rating):
     db.rankings.update_one(
         {'reference':reference},
@@ -23,15 +25,16 @@ def insert_weighted_ratings(reference, name, rating):
 
 def main():
     city = 'montreal'
-    response = query_db(city)
+    response = get_all_restaurants_cursor(city)
 
     # temporary offset TODO: fix
     # offset if yelp_review_count exists
-    offset = 0.7
+    offset = 2.0
 
     for place in response:
-        yelp_rating = get_yelp_rating(place)
-        yelp_review_count = place.get('yelp_review_count', 0.0)
+        yelp_rating = get_yelp_rating(place) # raw yelp rating
+        yelp_review_count = place.get('yelp_review_count', 0.0) 
+
         google_rating = get_google_rating(place)
 
         weighted_yelp_rating = 0.0
@@ -42,10 +45,10 @@ def main():
             weighted_yelp_rating = get_weighted_rating(yelp_rating, yelp_review_count, city)
         
         # scale the google rating
-        if google_rating is not None:
+        if google_rating is not None and yelp_review_count is not None:
             if yelp_review_count is not None:
                 weighted_google_rating = get_weighted_rating(google_rating, yelp_review_count, city)
-            else:
+            else: # no yelp review count
                 weighted_google_rating = google_rating - offset
 
         combined_rating = get_combined_rating([weighted_yelp_rating, weighted_google_rating])
