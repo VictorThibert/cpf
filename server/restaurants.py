@@ -53,7 +53,7 @@ def get_list():
     maximum_distance = float(request.args.get('maximum_distance', DEFAULT_MAXIMUM_DISTANCE))
     minimum_score = float(request.args.get('minimum_score', DEFAULT_MINIMUM_SCORE))
 
-    if coordinates is not None:
+    if coordinates is not None: # TODO what if no coordinates provided?
         lat, lng = coordinates.split(',')
         lat, lng = [float(lat), float(lng)]
         search_set = db.restaurants.find({
@@ -68,6 +68,20 @@ def get_list():
         result_set.append(place)
 
     return jsonify(result_set)
+
+@restaurant.route('/help')
+def get_help():
+    help = {}
+    return """
+            To get restaurants: \n
+            cherrypicker.io/restaurant/get_list?(parameters) \n \n
+            Parameters: \n
+            limit : number of restaurants to return (10 by default) \n 
+            coordinates : format lat,lng (optional) \n 
+            maximum_distance : distance (in meters) from coordinate center to search for restaurants \n 
+            minimum_score : score cutoff (ignore for now)
+            """
+
 
 def create_restaurant_response(place):
     response = {}
