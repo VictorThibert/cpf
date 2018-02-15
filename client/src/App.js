@@ -25,7 +25,7 @@ class App extends Component {
   changeCard(restaurant) {
     this.setState({
       restaurantName:restaurant.name,
-      image1:(restaurant.yelp_photos == null) ? '' : restaurant.yelp_photos[0],
+      image1:(restaurant.yelp_photos == null) ? '' : restaurant.yelp_photos[0], // TODO: possibly get google image instead
       price:restaurant.yelp_price,
       description:'Farm-fresh Québécois dishes & tasting menus from renowned chef Normand Laprise, plus fine wines.',
       website:restaurant.website
