@@ -3,6 +3,7 @@
 
 from algorithm import get_weighted_rating, get_google_rating, get_yelp_rating, get_combined_rating
 from extensions import db
+from bson.objectid import ObjectId
 
 # get all restaurants for a given city
 def get_all_restaurants_cursor(city):
@@ -10,18 +11,15 @@ def get_all_restaurants_cursor(city):
     return response
 
 # update the db with the weighted ratings
-def insert_weighted_ratings(reference, name, rating):
-    db.rankings.update_one(
-        {'reference':reference},
+def insert_weighted_ratings(object_id, rating):
+    db.restaurants.update_one(
+        {'_id':ObjectId(object_id)},
         {'$set':{
-                'name': name,
-                'rating':rating
+                'rating_v1':rating
             }
             
-        },
-            upsert=True
+        }
     )
-
 
 def main():
     city = 'montreal'
@@ -53,13 +51,10 @@ def main():
 
         combined_rating = get_combined_rating([weighted_yelp_rating, weighted_google_rating])
 
-        reference = place.get('_id')
-        name = place.get('name')
+        object_id = place.get('_id')
+        
         print(name, combined_rating)
-        insert_weighted_ratings(reference, name, combined_rating)
-
-
-
+        insert_weighted_ratings(object_id, combined_rating)
 
 if __name__ == '__main__':
     main()
