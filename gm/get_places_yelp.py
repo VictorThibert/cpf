@@ -8,6 +8,7 @@ import pprint
 import requests
 import sys
 import urllib
+import time
 
 from extensions import db
 from fuzzywuzzy import fuzz
@@ -46,7 +47,19 @@ def request(host, path, api_key, url_params=None):
     headers = {
         'Authorization': 'Bearer %s' % api_key,
     }
-    response = requests.request('GET', url, headers=headers, params=url_params)
+
+    # temporary
+    respose = {}
+    try:
+        response = requests.request('GET', url, headers=headers, params=url_params)
+    except ConnectionError as e:
+        print('Request Error (Sleep 5 seconds)')
+        time.sleep(5)
+        try:
+            response = requests.request('GET', url, headers=headers, params=url_params)
+        except ConnectionError as f:
+            print('2nd request error: skip')
+            
     return response.json()
 
 # send a yelp api call to get more details about a particular yelp_business
@@ -167,6 +180,9 @@ def update_each_restaurant():
         places.append(place)
     cursor.close()
 
+    # temporary counter
+    counter = 0
+
     for place in places:
         try:
             place_name = place['name']
@@ -174,6 +190,10 @@ def update_each_restaurant():
             place_id = place['place_id']
         except KeyError:
             print('Key Error')
+        
+        # temporary 
+        print(counter)
+        counter += 1
 
         details = create_restaurant_object(place_name, coordinates)
         update_db(details, place_id)
