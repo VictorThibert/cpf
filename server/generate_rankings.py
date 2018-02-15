@@ -53,7 +53,7 @@ def main():
 
         object_id = place.get('_id')
         
-        print(name, combined_rating)
+        print(place.get('name',''), combined_rating)
         insert_weighted_ratings(object_id, combined_rating)
 
 if __name__ == '__main__':
