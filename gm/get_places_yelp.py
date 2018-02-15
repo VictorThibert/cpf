@@ -160,7 +160,14 @@ def create_restaurant_object(google_name, coordinates):
 
 # query yelp and update entry for each existing (google) restaurant in db, 
 def update_each_restaurant():
-    for place in db.restaurants.find():
+
+    cursor = db.restaurants.find()
+    places = []
+    for place in cursor:
+        places.append(place)
+    cursor.close()
+
+    for place in places:
         try:
             place_name = place['name']
             coordinates = place['location'] # dict with lat and lng
