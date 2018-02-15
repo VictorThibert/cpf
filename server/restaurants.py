@@ -58,10 +58,10 @@ def get_list():
         lat, lng = [float(lat), float(lng)]
         search_set = db.restaurants.find({
             'geo_json':{'$geoWithin':{'$centerSphere':[[lng, lat], meters_to_radians(maximum_distance)]}},
-            'rating':{'$gt':minimum_score}
+            'rating_v1':{'$gt':minimum_score}
             }).sort('rating', -1).limit(limit)
     else:
-        search_set = db.restaurants.find({'rating':{'$gt':minimum_score}}).sort('rating', -1).limit(int(limit))
+        search_set = db.restaurants.find({'rating_v1':{'$gt':minimum_score}}).sort('rating_v1', -1).limit(int(limit))
     
     for place in search_set:
         place = create_restaurant_response(place)
