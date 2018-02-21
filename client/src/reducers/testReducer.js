@@ -2,8 +2,6 @@
 
 const defaultState = {
     restaurants: [],
-    fetching: false,
-    fetched: false,
     error: null,
     user: "joebeef"
 };
@@ -14,7 +12,6 @@ const reducer = (state = defaultState, action) => {
             console.log("FETCH_DATA action");
             return {
                 ...state,
-                fetching: true
             };
         }
         case 'FETCH_DATA_SUCCESS': {
@@ -22,8 +19,6 @@ const reducer = (state = defaultState, action) => {
             return {
                 ...state,
                 restaurants:action.payload,
-                fetching: false,
-                fetched: true
             }
         }
         case 'FETCH_DATA_FAILURE': {
@@ -31,7 +26,6 @@ const reducer = (state = defaultState, action) => {
             return {
                 ...state,
                 error:action.payload,
-                fetching: false,
             }
         }
         case 'FETCH_USER': {
