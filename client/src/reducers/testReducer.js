@@ -13,28 +13,30 @@ const defaultState = {
 const reducer = (state = defaultState, action) => {
     switch(action.type) {
         case "FETCH_DATA_SUCCESS": {
-            console.log("FETCH_DATA_SUCCESS action");
             return {
                 ...state,
                 restaurants:action.payload,
             }
         }
         case "FETCH_DATA_FAILURE": {
-            console.log("FETCH_DATA_FAILURE action");
             return {
                 ...state,
                 error:action.payload,
             }
         }
         case "SET_USER_LOCATION": {
-            console.log("SET_USER_LOCATION action")
             return {
                 ...state,
                 coordinates:action.payload
             }
         }
+        case "SET_USER_CITY": {
+            return {
+                ...state,
+                city:action.payload.city
+            }
+        }
         case "FETCH_USER": {
-            console.log("FETCH_USER action", action.payload.name)
             return {
                 ...state,
                 user:action.payload.name

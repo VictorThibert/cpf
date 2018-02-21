@@ -23,7 +23,8 @@ class App extends Component {
       defaultCenter: {
         lat:45.5,
         lng:-73.5
-      }
+      },
+      city: 'montreal'
     }
   }
 

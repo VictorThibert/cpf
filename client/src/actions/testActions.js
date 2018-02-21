@@ -1,4 +1,5 @@
 import axios from 'axios';
+import metroCities from '../metroCities.json'
 
 export const fetchRestaurants = (limit) => {
     const url = 'http://cherrypicker.io:4000/restaurant/get_list?limit=' + limit;
@@ -23,7 +24,8 @@ export const getUserLocation = () => {
                     lng: position.coords.longitude
                 };
                 
-                dispatch(setUserLocation(coordinates))           
+                dispatch(setUserLocation(coordinates))  
+                dispatch(setUserCity(coordinates))         
             }, function() {
                 console.log("Error getting geolocation of user.")
             });
@@ -39,6 +41,44 @@ export const setUserLocation = (coordinates) => {
         payload: {
             lat: coordinates.lat,
             lng: coordinates.lng
+        }
+    }
+}
+
+// haversine formula
+const getCoordinateDistance = (coordinates1, coordinates2) => {
+
+    const lat1 = coordinates1.lat;
+    const lng1 = coordinates1.lng;
+    const lat2 = coordinates2.lat;
+    const lng2 = coordinates2.lng
+
+    const p = 0.017453292519943295;    // Math.PI / 180
+    const c = Math.cos;
+    const a = 0.5 - c((lat2 - lat1) * p)/2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lng2 - lng1) * p))/2;
+
+    return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
+}
+
+export const setUserCity = (coordinates) => {
+    const maximumDistance = 35000; // meters
+    let city = 'no city found';
+    let currentDistance = maximumDistance;
+    
+    for (let index in metroCities) {
+        let entry = metroCities[index]
+        let entryCoordinates = {lat:entry.lat, lng: entry.lng};
+        let distance = getCoordinateDistance(entryCoordinates, coordinates);
+        if (distance <= maximumDistance && distance < currentDistance) { // if two cities fall within the maximum, chooses the nearest
+            city = entry.city;
+            currentDistance = distance
+        }
+    }
+
+    return {
+        type: "SET_USER_CITY",
+        payload: {
+            city:city
         }
     }
 }
