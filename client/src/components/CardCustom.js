@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Icon, Image, Reveal } from 'semantic-ui-react';
+import { Card, Icon, Image /*, Reveal */ } from 'semantic-ui-react';
 
 const style = {
         position:'absolute',
@@ -13,7 +13,7 @@ class CardCustom extends React.Component {
 
 
         let extra;
-        if (this.props.website != ''){
+        if (this.props.website !== ''){
             extra = (
               <a href={this.props.website}>
                 <Icon name='food'/>

@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { compose, withProps } from 'recompose';
-import { withScriptjs, withGoogleMap, GoogleMap, Marker, Size } from 'react-google-maps';
+import { withScriptjs, withGoogleMap, GoogleMap, Marker} from 'react-google-maps';
 import mapStyle from '../mapStyle.json';
 
 
@@ -20,7 +20,6 @@ const ReactMap = compose(
 )((props) =>
     <GoogleMap
         defaultZoom={13}
-        defaultCenter={{ lat: 45.5, lng: -73.59 }}
         defaultOptions={{ 
         styles: mapStyle, 
         streetViewControl: false,
@@ -31,14 +30,21 @@ const ReactMap = compose(
         rotateControl: false,
         fullscreenControl: false }} 
         style={{ position:'absolute'}}
-        ref={(map) => map && map.panTo({lat: props.lat,lng: props.lng})}
+        ref={(map) => map && map.panTo(newCenter(props.center, props.geolocation, props.defaultCenter))}
     >
 
-  
-
     {generateMarkers(props)}
+
     </GoogleMap>
 )
+
+const newCenter = (center, geolocation, defaultCenter) => {
+    if (center.lat === defaultCenter.lat && center.lng === defaultCenter.lng) { // if default
+        return geolocation
+    } else {
+        return center
+    }
+}
 
 const radishUrl = (i, number_of_restaurants) => {
     const prefix = 'https://i.cubeupload.com/'
@@ -51,19 +57,16 @@ const radishUrl = (i, number_of_restaurants) => {
 
 const generateMarkers = (props) => {
     const restaurants = props.restaurants;
+    console.log("markers")
 
 
     // temporary sort for marker testing
     restaurants.sort((a,b) => {
         return a.location.lng - b.location.lng
     })
-    let i = 0
 
+    let i = 0
     const n = 6; // temporary divisor for icon size
-    const image = {
-        url: radishUrl(),
-        scaledSize: new google.maps.Size(198/n, 281/n)
-    };
 
     const restaurantMarkers = restaurants.map(restaurant => 
         <Marker 
@@ -73,8 +76,7 @@ const generateMarkers = (props) => {
             }} 
             key = {restaurant._id}
             onClick = {() => {
-                props.panTo(restaurant.location.lat, restaurant.location.lng)
-                props.onMarkerClick(restaurant)
+                props.onMarkerClick(restaurant, {lat: restaurant.location.lat, lng: restaurant.location.lng})
             }}
             icon = {{
                 url: radishUrl(i++, restaurants.length),

@@ -2,39 +2,38 @@
 
 const defaultState = {
     restaurants: [],
-    fetching: false,
-    fetched: false,
     error: null,
-    user: "joebeef"
+    user: "joebeef",
+    coordinates: {
+        lat: 40, 
+        lng:-73.59
+    }
 };
 
 const reducer = (state = defaultState, action) => {
     switch(action.type) {
-        case 'FETCH_DATA': {
-            console.log("FETCH_DATA action");
-            return {
-                ...state,
-                fetching: true
-            };
-        }
-        case 'FETCH_DATA_SUCCESS': {
+        case "FETCH_DATA_SUCCESS": {
             console.log("FETCH_DATA_SUCCESS action");
             return {
                 ...state,
                 restaurants:action.payload,
-                fetching: false,
-                fetched: true
             }
         }
-        case 'FETCH_DATA_FAILURE': {
+        case "FETCH_DATA_FAILURE": {
             console.log("FETCH_DATA_FAILURE action");
             return {
                 ...state,
                 error:action.payload,
-                fetching: false,
             }
         }
-        case 'FETCH_USER': {
+        case "SET_USER_LOCATION": {
+            console.log("SET_USER_LOCATION action")
+            return {
+                ...state,
+                coordinates:action.payload
+            }
+        }
+        case "FETCH_USER": {
             console.log("FETCH_USER action", action.payload.name)
             return {
                 ...state,

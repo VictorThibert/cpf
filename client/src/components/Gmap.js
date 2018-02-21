@@ -1,48 +1,27 @@
 import React from 'react';
 import ReactMap from './ReactMap.js';
-import { fetchUser, fetchRestaurants } from '../actions/testActions.js';
+import { fetchRestaurants, getUserLocation } from '../actions/testActions.js';
 import { connect } from 'react-redux';
 
 
 class Gmap extends React.PureComponent {
-    state = {
-        isMarkerShown: true,
-        lat: 45.5,
-        lng: -73.59,
-        fetchLimit: 10
-    }
 
     componentDidMount() {
+        this.props.dispatch(getUserLocation());
     }
 
     componentWillMount() {
-        this.props.dispatch(fetchRestaurants(this.state.fetchLimit)); // ensures that fetch is performed
+        this.props.dispatch(fetchRestaurants(this.props.fetchLimit)); // ensures that fetch is performed
     }
-
-    delayedShowMarker = (time) => {
-        setTimeout(() => {
-            this.setState({ isMarkerShown: true })
-        }, time)
-    }
-
-    handleMarkerClick = (restaurant) => {
-        this.props.changeCard(restaurant);
-    }
-
-    panTo = (lat, lng) => {
-        this.setState({lat:lat, lng:lng});
-    }
-
 
     render() {
         return (
             <ReactMap
-                isMarkerShown={this.state.isMarkerShown}
-                onMarkerClick={this.handleMarkerClick}
+                onMarkerClick={this.props.changeCard}
                 restaurants={this.props.restaurants}
-                panTo={this.panTo.bind(this)}
-                lat={this.state.lat}
-                lng={this.state.lng}
+                center={this.props.center} 
+                geolocation={this.props.coordinates}     
+                defaultCenter={this.props.defaultCenter}       
             />
         )
     }
@@ -53,7 +32,8 @@ class Gmap extends React.PureComponent {
 const mapStateToProps = (state) => { // state contains the reducer it seems
     return {
         restaurants: state.testReducer.restaurants,
-        user: state.testReducer.user
+        user: state.testReducer.user,
+        coordinates: state.testReducer.coordinates
     }
 }
 
