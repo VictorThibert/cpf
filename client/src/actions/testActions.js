@@ -14,6 +14,17 @@ export function fetchRestaurants(limit) {
 	}
 }
 
+export function getUserLocation() {
+
+	
+	return {
+		type: "GET_USER_LOCATION",
+		payload: {
+
+		}
+	}
+}
+
 export function fetchUser() {
 	return {
 		type: "FETCH_USER",
@@ -22,3 +33,4 @@ export function fetchUser() {
 		}
 	}
 }
+

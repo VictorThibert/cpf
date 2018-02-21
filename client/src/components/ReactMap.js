@@ -34,9 +34,8 @@ const ReactMap = compose(
         ref={(map) => map && map.panTo({lat: props.lat,lng: props.lng})}
     >
 
-  
-
     {generateMarkers(props)}
+
     </GoogleMap>
 )
 

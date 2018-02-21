@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactMap from './ReactMap.js';
-import { fetchUser, fetchRestaurants } from '../actions/testActions.js';
+import { fetchRestaurants } from '../actions/testActions.js';
 import { connect } from 'react-redux';
 
 
