@@ -70,7 +70,6 @@ def get_list():
     for place in search_set:
         place = create_restaurant_response(place)
         result_set.append(place)
-    print(result_set)
 
     return jsonify(list(random.choice(result_set, limit, replace=False))) # return limit random restaurants for now
 
