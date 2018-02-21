@@ -10,7 +10,7 @@ import mapStyle from '../mapStyle.json';
 
 const ReactMap = compose(
   withProps({
-    googleMapURL: 'https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places',
+    googleMapURL: 'https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places&key=AIzaSyC13feNnIWzC323mWeRTaOZwyT2khRDHx8',
     loadingElement: <div style={{ height: '100%' }} />,
     containerElement: <div style={{ height: '100vh' }} />,
     mapElement: <div style={{ height: '100%' }} />,
