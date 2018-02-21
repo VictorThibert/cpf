@@ -173,9 +173,9 @@ def create_restaurant_object(google_name, coordinates):
     return details
 
 # query yelp and update entry for each existing (google) restaurant in db, 
-def update_each_restaurant():
+def update_each_restaurant(city):
 
-    cursor = db.restaurants.find()
+    cursor = db.restaurants.find({'city':city})
     places = []
     for place in cursor:
         places.append(place)
@@ -203,7 +203,7 @@ def main():
     if API_KEY is None:
         print("No API_KEY provided")
         sys.exit(0)
-    update_each_restaurant()
+    update_each_restaurant(sys.argv[1])
 
 if __name__ == '__main__':
     main()
