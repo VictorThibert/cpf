@@ -59,7 +59,7 @@ def request(host, path, api_key, url_params=None):
             response = requests.request('GET', url, headers=headers, params=url_params)
         except ConnectionError as f:
             print('2nd request error: skip')
-            
+
     return response.json()
 
 # send a yelp api call to get more details about a particular yelp_business
@@ -114,11 +114,11 @@ def get_distance(coordinates_1, coordinates_2):
     return distance
 
 # verify if returned restaurant is similar enough 
-def is_same_restaurant(google_name, coordinates, tentative_name, tenatative_coordinates):
+def is_same_restaurant(google_name, coordinates, tentative_name, tentative_coordinates):
     is_similar = False
 
     c1 = (coordinates['lat'], coordinates['lng'])
-    c2 = (tenatative_coordinates['latitude'], tenatative_coordinates['longitude'])
+    c2 = (tentative_coordinates['latitude'], tentative_coordinates['longitude'])
     distance = get_distance(c1, c2)
     
     if (distance < MAXIMUM_DISTANCE) and (get_wordscore(google_name, tentative_name) >= MINIMUM_WORDSCORE): # check word similarity and distance 
@@ -136,7 +136,7 @@ def create_restaurant_object(google_name, coordinates):
 
     is_valid = False
     tentative_name = ''
-    tenatative_coordinates = {}
+    tentative_coordinates = {}
 
     # only keep relevant details
     details = {}
@@ -152,11 +152,11 @@ def create_restaurant_object(google_name, coordinates):
 
     try: 
         tentative_name = response.get('name', None)
-        tenatative_coordinates = response.get('coordinates', {'latitude': None, 'longitude':None})
+        tentative_coordinates = response.get('coordinates', {'latitude': None, 'longitude':None})
     except AttributeError:
         return details 
 
-    is_valid = is_same_restaurant(google_name, coordinates, tentative_name, tenatative_coordinates) 
+    is_valid = is_same_restaurant(google_name, coordinates, tentative_name, tentative_coordinates) 
 
     if is_valid:
         details['yelp_review_count'] = response.get('review_count', None)

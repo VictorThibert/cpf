@@ -42,7 +42,7 @@ const ReactMap = compose(
 
 const radishUrl = (i, number_of_restaurants) => {
     const prefix = 'https://i.cubeupload.com/'
-    const urls = ['ThtjvX.png', 'AgvJ9m.png', '8Kjxl6.png', 'A1SNk0.png', 'G9jJuq.png', 'UvY6j5.png', '2i3cWq.png', 'Z2fQ7e.png', 'fwblGv.png', 'Lfuk8Z.png'];
+    const urls = ['ThtjvX.png', 'AgvJ9m.png', '8KjxI6.png', 'A1SNk0.png', 'G9jJuq.png', 'UvY6j5.png', '2i3cWq.png', 'Z2fQ7e.png', 'fwblGv.png', 'Lfuk8Z.png'];
     const bins = Math.floor(number_of_restaurants/urls.length);
     
     return prefix + urls[Math.floor(i/(bins))]
