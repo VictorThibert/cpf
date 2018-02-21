@@ -3,6 +3,7 @@ import flask
 import geopy.distance
 import logging
 
+from numpy import random
 from bson.objectid import ObjectId
 from extensions import db
 from flask import Blueprint, render_template, abort, request, jsonify
@@ -46,12 +47,15 @@ def get_list():
     DEFAULT_LIMIT = 10
     DEFAULT_MAXIMUM_DISTANCE = 30000
     DEFAULT_MINIMUM_SCORE = 0
+    DEFAULT_PRICE_LEVEL = 0 # means every price
+    DEFAULT_RESULT_SET = 100
 
     # argument list TODO: document api
     limit = int(request.args.get('limit', DEFAULT_LIMIT))
     coordinates = request.args.get('coordinates', None) # given in the form of a string 'lat,lng' (not good to use brackets of any kind in urls)
     maximum_distance = float(request.args.get('maximum_distance', DEFAULT_MAXIMUM_DISTANCE))
     minimum_score = float(request.args.get('minimum_score', DEFAULT_MINIMUM_SCORE))
+    price_level = int(request.args.get('price_level', DEFAULT_PRICE_LEVEL)) # TODO: implement price level
 
     if coordinates is not None: # TODO what if no coordinates provided?
         lat, lng = coordinates.split(',')
@@ -61,13 +65,14 @@ def get_list():
             'rating_v1':{'$gt':minimum_score}
             }).sort('rating', -1).limit(limit)
     else:
-        search_set = db.restaurants.find({'rating_v1':{'$gt':minimum_score}}).sort('rating_v1', -1).limit(int(limit))
+        search_set = db.restaurants.find({'rating_v1':{'$gt':minimum_score}}).sort('rating_v1', -1).limit(DEFAULT_RESULT_SET)
     
     for place in search_set:
         place = create_restaurant_response(place)
         result_set.append(place)
+    print(result_set)
 
-    return jsonify(result_set)
+    return jsonify(list(random.choice(result_set, limit, replace=False))) # return limit random restaurants for now
 
 @restaurant.route('/help')
 def get_help():
@@ -80,8 +85,8 @@ def get_help():
             coordinates : format lat,lng (optional) \n 
             maximum_distance : distance (in meters) from coordinate center to search for restaurants \n 
             minimum_score : score cutoff (ignore for now)
+            price_level : price level (0, 1, 2, 3, 4) (yelp equivalent ALL, $, $$, $$$, $$$$)
             """
-
 
 def create_restaurant_response(place):
     response = {}
@@ -93,6 +98,10 @@ def create_restaurant_response(place):
     response['yelp_photos'] = place.get('yelp_photos', [])
     response['yelp_location'] = place.get('yelp_location', {})
     response['yelp_price'] = place.get('yelp_price', '')
+    response['yelp_rating'] = place.get('yelp_rating', '')
+    response['rating_v1'] = place.get('rating_v1')
+    response['google_rating'] = place.get('rating')
+
 
     return response
 
