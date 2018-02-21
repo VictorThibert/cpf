@@ -16,56 +16,44 @@ class App extends Component {
       price:'',
       description:'',
       website:'',
-      lat:45.5017, // default to montreal for now
-      lng:-73.5673
+      center: {
+        lat:45.5,
+        lng:-73.5
+      },
+      defaultCenter: {
+        lat:45.5,
+        lng:-73.5
+      }
     }
   }
 
-
-  locateUser() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(position) { // gets called after location given
-        const pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-
-        this.setState({
-          lat:pos.lat,
-          lng:pos.lng
-        })
-
-        // find out city
-        // geocodeLatLng(geocoder, pos);
-      }, function() {
-        // handleLocationError(true, map.getCenter());
-      });
-    } else {
-      // pass 
-    }
-  }
-
-  changeCard(restaurant) {
-    this.locateUser();
+  changeCard(restaurant, coordinates) {
     this.setState({
       restaurantName:restaurant.name,
       image1:(restaurant.yelp_photos == null) ? '' : restaurant.yelp_photos[0], // TODO: possibly get google image instead
       price:restaurant.yelp_price,
       description:'Farm-fresh Québécois dishes & tasting menus from renowned chef Normand Laprise, plus fine wines.',
-      website:restaurant.website
+      website:restaurant.website,
+      center: coordinates
     });
   }
 
   render() {
     return (
       <div>
-        <Gmap changeCard={this.changeCard.bind(this)}/>
+        <Gmap 
+          changeCard={this.changeCard.bind(this)} 
+          center={this.state.center}
+          defaultCenter={this.state.defaultCenter}
+          fetchLimit={10}
+        />
         <CardCustom 
           restaurantName={this.state.restaurantName} 
           image1={this.state.image1} 
           price={this.state.price} 
           description={this.state.description}
-          website={this.state.website}/>
+          website={this.state.website}
+        />
       </div>
     );
   }
