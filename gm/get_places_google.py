@@ -5,36 +5,31 @@ import time
 import math
 import os
 import glob
+import sys
+import json
 
-# from googleplaces import GooglePlaces, lang, types
-from custom_wrapper import GooglePlaces, lang
 import geopy
 import geopy.distance
-from geopy.distance import VincentyDistance
+from geopy.distance import vincenty, Point
+
+from custom_wrapper import GooglePlaces, lang # needed to avoid certiain bugs
 
 # database related imports
-# from extensions import db
 from extensions import db
 import uuid
 
 # get API key from environment. TODO: use env file instead
 API_KEY = os.environ.get('GOOGLE_PLACES_API_KEY')
-google_places = GooglePlaces(API_KEY)
+GOOGLE_PLACES = GooglePlaces(API_KEY)
+DEFAULT_INSCRIPTION_RADIUS = 13000
+SLEEP_TIME = 2 # 0 if using .get_details, 2 if not
 
-# initial parameters (for Montreal)
-city = 'montreal'
-TL = (45.55, -73.7)
-BR = (45.4, -73.5)
-
-sleep_time = 2 # 0 if using .get_details, 2 if not
-
-
+# TODO: convert coordinates from tuple (lat,lng) to proper {lat:lat, lng:lng}
 # TODO: issue with converting grid to lat/lng due to curvature of earth
 # TODO: standardize coordinate represenation (dictionry, vs (x,y) pair, etc.)
-# TODO: Optimize
+# TODO: optimize using last size bumping (see algorithm specifications)
 
 def traverse_quadrant(TL, BR):
-
     # coordinate measurements
     latitude_midpoint = (TL[0] + BR[1])/2
     longitude_midpoint = (TL[0] + BR[1])/2
@@ -88,11 +83,10 @@ def traverse_quadrant(TL, BR):
             add_to_db(found_restaurants)
 
 def get_places_at_location(location, radius):
-
     print('location: ', location)
     current_count = 0
     found_restaurants = []
-    query_result = google_places.nearby_search(
+    query_result = GOOGLE_PLACES.nearby_search(
         radius = radius,
         location = location,
         keyword = '',
@@ -108,7 +102,7 @@ def get_places_at_location(location, radius):
 
         if query_result.has_next_page_token:
             time.sleep(2)
-            query_result = google_places.nearby_search(pagetoken=query_result.next_page_token)
+            query_result = GOOGLE_PLACES.nearby_search(pagetoken=query_result.next_page_token)
         else:
             break
 
@@ -118,7 +112,6 @@ def exists_in_db(place):
     return db.montreal.find({'place_id':place['place_id']}).count() > 0
 
 def parse_place(place):
-
     # set place to its details
     place = place.details
 
@@ -187,11 +180,8 @@ def save_photo(photo):
     photo_file.close()
     return name
 
-
 def add_to_db(found_restaurants):
-
     for place in found_restaurants:
-
         place.get_details()
 
         if(exists_in_db(place.details)): continue
@@ -205,14 +195,42 @@ def add_to_db(found_restaurants):
                 upsert=True
             )
 
-
 def convert_coordinates_to_string(coordinate):
     return ','.join([str(coordinate['lat']), str(coordinate['lng'])])
 
 def find_radius(square_length):
     return 0.5 * math.sqrt(2 * square_length ** 2)
 
+def getCorners(coordinates, radius=DEFAULT_INSCRIPTION_RADIUS): #inscribed square in circle
+    km = radius/1000
+    TL_point = vincenty(kilometers=km).destination(Point(coordinates[0], coordinates[1]), 315) # northwest
+    BR_point = vincenty(kilometers=km).destination(Point(coordinates[0], coordinates[1]), 135) # southeast
+
+    TL = (TL_point[0], TL_point[1])
+    BR = (BR_point[0], BR_point[1])
+
+    return (TL, BR)
+
+def get_city_coordinates(city):
+    cities = []
+    with open('metro_cities.json') as json_data:
+        cities = json.load(json_data)
+    
+    for entry in cities:
+        if entry['city'] == city:
+            return (entry['lat'], entry['lng'])
+
+    print('City ', city, ' not found')
+    sys.exit(0)
+
 def main():
+    city = sys.argv[1]
+    print('Getting city: ', city)
+
+    city_coordinates = get_city_coordinates(city)
+    (TL, BR) = getCorners(city_coordinates, DEFAULT_INSCRIPTION_RADIUS)
+
+    print(TL, BR, city_coordinates)
     traverse_quadrant(TL, BR)
 
 
