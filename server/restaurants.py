@@ -49,6 +49,7 @@ def get_list():
     DEFAULT_MINIMUM_SCORE = 0
     DEFAULT_PRICE_LEVEL = 0 # means every price
     DEFAULT_RESULT_SET = 100
+    DEFAULT_CITY = 'montreal'
 
     # argument list TODO: document api
     limit = int(request.args.get('limit', DEFAULT_LIMIT))
@@ -56,6 +57,7 @@ def get_list():
     maximum_distance = float(request.args.get('maximum_distance', DEFAULT_MAXIMUM_DISTANCE))
     minimum_score = float(request.args.get('minimum_score', DEFAULT_MINIMUM_SCORE))
     price_level = int(request.args.get('price_level', DEFAULT_PRICE_LEVEL)) # TODO: implement price level
+    city = request.args.get('city', DEFAULT_CITY)
 
     if coordinates is not None: # TODO what if no coordinates provided?
         lat, lng = coordinates.split(',')
@@ -65,12 +67,13 @@ def get_list():
             'rating_v1':{'$gt':minimum_score}
             }).sort('rating', -1).limit(limit)
     else:
-        search_set = db.restaurants.find({'rating_v1':{'$gt':minimum_score}}).sort('rating_v1', -1).limit(DEFAULT_RESULT_SET)
+        search_set = db.restaurants.find({'rating_v1':{'$gt':minimum_score}, 'city':city}).sort('rating_v1', -1).limit(DEFAULT_RESULT_SET)
     
     for place in search_set:
         place = create_restaurant_response(place)
         result_set.append(place)
 
+    # randomize result
     return jsonify(list(random.choice(result_set, limit, replace=False))) # return limit random restaurants for now
 
 @restaurant.route('/help')
@@ -85,6 +88,7 @@ def get_help():
             maximum_distance : distance (in meters) from coordinate center to search for restaurants \n 
             minimum_score : score cutoff (ignore for now)
             price_level : price level (0, 1, 2, 3, 4) (yelp equivalent ALL, $, $$, $$$, $$$$)
+            city : city name (generally to be used without coordinates)
             """
 
 def create_restaurant_response(place):
