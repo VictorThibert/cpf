@@ -23,6 +23,7 @@ API_KEY = os.environ.get('GOOGLE_PLACES_API_KEY')
 GOOGLE_PLACES = GooglePlaces(API_KEY)
 DEFAULT_INSCRIPTION_RADIUS = 13000
 SLEEP_TIME = 2 # 0 if using .get_details, 2 if not
+CITY = sys.argv[1]
 
 # TODO: convert coordinates from tuple (lat,lng) to proper {lat:lat, lng:lng}
 # TODO: issue with converting grid to lat/lng due to curvature of earth
@@ -138,7 +139,7 @@ def parse_place(place):
     del place['geometry']
 
     # add city name
-    place['city'] = city
+    place['city'] = CITY
 
     place['geo_json'] = {
         'type':'Point',
