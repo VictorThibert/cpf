@@ -74,7 +74,14 @@ def get_list():
         result_set.append(place)
 
     # randomize result
-    return jsonify(list(random.choice(result_set, limit, replace=False))) # return limit random restaurants for now
+    random_list = result_set
+
+    try:
+        random_list = list(random.choice(result_set, limit, replace=False))
+    except ValueError:
+        print('List not long enough to randomize')
+
+    return jsonify(random_list) # return limit random restaurants for now
 
 @restaurant.route('/help')
 def get_help():
