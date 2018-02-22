@@ -5,6 +5,7 @@ const style = {
         position:'absolute',
         top: '50px',
         right: '60px',
+        boxShadow: '0 1px 4px 0px #0000002e, 0 0 0 0px #708490',
 };
 
 
