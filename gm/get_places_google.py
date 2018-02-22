@@ -1,27 +1,23 @@
 # get all restaurants using Google API and recursive grid to subdivide
 
 # basic imports
-import time
-import math
-import os
-import glob
-import sys
-import json
-
 import geopy
 import geopy.distance
-from geopy.distance import vincenty, Point
-
-from custom_wrapper import GooglePlaces, lang # needed to avoid certiain bugs
-
-# database related imports
-from extensions import db
+import glob
+import json
+import math
+import os
+import sys
+import time
 import uuid
+from custom_wrapper import GooglePlaces, lang # needed to avoid certiain bugs
+from extensions import db
+from geopy.distance import vincenty, Point
 
 # get API key from environment. TODO: use env file instead
 API_KEY = os.environ.get('GOOGLE_PLACES_API_KEY')
 GOOGLE_PLACES = GooglePlaces(API_KEY)
-DEFAULT_INSCRIPTION_RADIUS = 13000
+DEFAULT_INSCRIPTION_RADIUS = 15000
 SLEEP_TIME = 2 # 0 if using .get_details, 2 if not
 CITY = sys.argv[1]
 
@@ -30,11 +26,8 @@ CITY = sys.argv[1]
 # TODO: standardize coordinate represenation (dictionry, vs (x,y) pair, etc.)
 # TODO: optimize using last size bumping (see algorithm specifications)
 
+# segments quadrant into subsections to recursively look for restaurants
 def traverse_quadrant(TL, BR):
-    # coordinate measurements
-    latitude_midpoint = (TL[0] + BR[1])/2
-    longitude_midpoint = (TL[0] + BR[1])/2
-
     # four points on quadrant (in lat/lng)
     TL = (TL[0], TL[1])
     TR = (TL[0], BR[1])
@@ -46,32 +39,31 @@ def traverse_quadrant(TL, BR):
     vertical = geopy.distance.vincenty(TL, BL).km * 1000
 
     # determine the centers for the 4 circles in terms of lat/lng
-    c1 = (TL[0] - (TL[0]-BR[0])/4, TL[1] + (BR[1]-TL[1])/4)
-    c2 = (TL[0] - (TL[0]-BR[0])/4, TL[1] + 3 * (BR[1]-TL[1])/4)
-    c3 = (TL[0] - 3 * (TL[0]-BR[0])/4, TL[1] + (BR[1]-TL[1])/4)
-    c4 = (TL[0] - 3 * (TL[0]-BR[0])/4, TL[1] + 3 * (BR[1]-TL[1])/4)
+    c1 = (TL[0] - (TL[0] - BR[0]) / 4, TL[1] + (BR[1] - TL[1]) / 4)
+    c2 = (TL[0] - (TL[0] - BR[0]) / 4, TL[1] + 3 * (BR[1] - TL[1]) / 4)
+    c3 = (TL[0] - 3 * (TL[0] - BR[0]) / 4, TL[1] + (BR[1] - TL[1]) / 4)
+    c4 = (TL[0] - 3 * (TL[0] - BR[0]) / 4, TL[1] + 3 * (BR[1] - TL[1]) / 4)
     centers = [c1,c2,c3,c4]
 
     # store arrays for the TLs and BRs for the next four sub-quadrants
     TL_2 = [
-            (TL[0], TL[1]),
-            (TL[0], TL[1] + (BR[1]-TL[1])/2),
-            (TL[0] - (TL[0]-BR[0])/2, TL[1]),
-            (TL[0] - (TL[0]-BR[0])/2, TL[1] + (BR[1]-TL[1])/2)
-            ]
+        (TL[0], TL[1]),
+        (TL[0], TL[1] + (BR[1]-TL[1])/2),
+        (TL[0] - (TL[0]-BR[0])/2, TL[1]),
+        (TL[0] - (TL[0]-BR[0])/2, TL[1] + (BR[1]-TL[1])/2)
+    ]
     BR_2 = [
-            (TL[0] - (TL[0]-BR[0])/2, TL[1] + (BR[1]-TL[1])/2),
-            (TL[0] - (TL[0]-BR[0])/2, BR[1]),
-            (BR[0], TL[1] + (BR[1]-TL[1])/2),
-            (BR[0], BR[1])
-            ]
+        (TL[0] - (TL[0]-BR[0])/2, TL[1] + (BR[1]-TL[1])/2),
+        (TL[0] - (TL[0]-BR[0])/2, BR[1]),
+        (BR[0], TL[1] + (BR[1]-TL[1])/2),
+        (BR[0], BR[1])
+    ]
 
     # calculate associated radius for each sub-quadrant
     radius = find_radius(max(vertical, horizontal)/2)
 
     # attempt four quadrants TL TR BL BR
     for x in range(0,4):
-
         center = ','.join([str(centers[x][0]), str(centers[x][1])])
         print('Center', center, 'Radius', radius)
         found_restaurants = get_places_at_location(center, radius)
@@ -79,10 +71,10 @@ def traverse_quadrant(TL, BR):
         # subdivide if too many points in quadrant
         if len(found_restaurants) >= 60:
             traverse_quadrant(TL_2[x], BR_2[x])
-
         else:
             add_to_db(found_restaurants)
 
+# calls google places api with coordinates and radius 
 def get_places_at_location(location, radius):
     print('location: ', location)
     current_count = 0
@@ -100,7 +92,6 @@ def get_places_at_location(location, radius):
             found_restaurants.append(place)
             print(current_count, place.name)
 
-
         if query_result.has_next_page_token:
             time.sleep(2)
             query_result = GOOGLE_PLACES.nearby_search(pagetoken=query_result.next_page_token)
@@ -109,15 +100,18 @@ def get_places_at_location(location, radius):
 
     return found_restaurants
 
+# verifies if entry already exists in db
 def exists_in_db(place):
     return db.montreal.find({'place_id':place['place_id']}).count() > 0
 
+# TODO : fix photos collection
+# rewrites place object to match cpf needs
 def parse_place(place):
     # set place to its details
     place = place.details
 
     # reduce number of photos and parse
-    #photos = parse_photos(place.get('photos',{}))
+    # photos = parse_photos(place.get('photos',{}))
 
     # converting geometry into location
     place['location'] = place['geometry']['location']
@@ -202,7 +196,7 @@ def convert_coordinates_to_string(coordinate):
 def find_radius(square_length):
     return 0.5 * math.sqrt(2 * square_length ** 2)
 
-def getCorners(coordinates, radius=DEFAULT_INSCRIPTION_RADIUS): #inscribed square in circle
+def get_corners(coordinates, radius=DEFAULT_INSCRIPTION_RADIUS): #inscribed square in circle
     km = radius/1000
     TL_point = vincenty(kilometers=km).destination(Point(coordinates[0], coordinates[1]), 315) # northwest
     BR_point = vincenty(kilometers=km).destination(Point(coordinates[0], coordinates[1]), 135) # southeast
@@ -233,7 +227,6 @@ def main():
 
     print(TL, BR, city_coordinates)
     traverse_quadrant(TL, BR)
-
 
 if __name__ == '__main__':
     main()
