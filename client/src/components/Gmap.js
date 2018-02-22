@@ -6,12 +6,19 @@ import { connect } from 'react-redux';
 
 class Gmap extends React.PureComponent {
 
+    constructor() {
+        super();
+        this.state = {
+            'city':'montreal'
+        }
+    }
+
     componentDidMount() {
-        this.props.dispatch(getUserLocation());
     }
 
     componentWillMount() {
-        this.props.dispatch(fetchRestaurants(this.props.fetchLimit)); // ensures that fetch is performed
+        this.props.dispatch(getUserLocation());
+        this.props.dispatch(fetchRestaurants(this.props.fetchLimit, this.props.city)); // ensures that fetch is performed
     }
 
     render() {
@@ -33,7 +40,8 @@ const mapStateToProps = (state) => { // state contains the reducer it seems
     return {
         restaurants: state.testReducer.restaurants,
         user: state.testReducer.user,
-        coordinates: state.testReducer.coordinates
+        coordinates: state.testReducer.coordinates,
+        city: state.testReducer.city
     }
 }
 

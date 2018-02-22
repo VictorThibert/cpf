@@ -1,13 +1,13 @@
 import axios from 'axios';
 import metroCities from '../metroCities.json'
 
-export const fetchRestaurants = (limit) => {
-    const url = 'http://cherrypicker.io:4000/restaurant/get_list?limit=' + limit;
-
+export const fetchRestaurants = (limit, city='montreal') => { // montreal default for now
+    const url = 'http://cherrypicker.io:4000/restaurant/get_list?limit=' + limit + '&city=' + city; // TODO : clean this structure up
+    console.log(url)
     return function(dispatch) {
         axios.get(url)
             .then((response) => {
-                dispatch({type:'FETCH_DATA_SUCCESS', payload: response.data}) //dispatches an action???
+                dispatch({type:'FETCH_DATA_SUCCESS', payload: response.data}) 
             })
             .catch((err) => {
                 dispatch({type:'FETCH_DATA_FAILURE', payload: err})
@@ -24,8 +24,11 @@ export const getUserLocation = () => {
                     lng: position.coords.longitude
                 };
                 
-                dispatch(setUserLocation(coordinates))  
-                dispatch(setUserCity(coordinates))         
+                dispatch(setUserLocation(coordinates))  ;
+                dispatch(setUserCity(coordinates));
+                let city = setUserCity(coordinates).payload.city;
+                dispatch(fetchRestaurants(10, city));      
+
             }, function() {
                 console.log("Error getting geolocation of user.")
             });
