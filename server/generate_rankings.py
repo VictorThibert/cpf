@@ -1,6 +1,8 @@
 # generates ranking list for restaurants
 # currently Bayesian weighted score
 
+import sys
+
 from algorithm import get_weighted_rating, get_google_rating, get_yelp_rating, get_combined_rating
 from extensions import db
 from bson.objectid import ObjectId
@@ -22,7 +24,7 @@ def insert_weighted_ratings(object_id, rating):
     )
 
 def main():
-    city = 'montreal'
+    city = sys.argv[1]
     response = get_all_restaurants_cursor(city)
 
     # temporary offset TODO: fix
