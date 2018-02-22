@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Gmap from './components/Gmap';
 import CardCustom from './components/CardCustom.js';
 import 'semantic-ui-css/semantic.min.css';
-import bannerImage from './city-card-1.png';
+import bannerImage from './images/montreal.png';
 
 class App extends Component {
 
