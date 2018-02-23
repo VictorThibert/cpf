@@ -4,6 +4,7 @@ import Gmap from './components/Gmap';
 import CardCustom from './components/CardCustom.js';
 import 'semantic-ui-css/semantic.min.css';
 import bannerImage from './images/montreal.png';
+import ButtonGroupPrice from './components/ButtonGroupPrice.js';
 
 class App extends Component {
 
@@ -62,6 +63,7 @@ class App extends Component {
           isVisible={this.state.isVisible}
           bannerImage={this.state.bannerImage}
         />
+        <ButtonGroupPrice/>
       </div>
     );
   }
