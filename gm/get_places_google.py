@@ -223,7 +223,7 @@ def main():
     print('Getting city: ', city)
 
     city_coordinates = get_city_coordinates(city)
-    (TL, BR) = getCorners(city_coordinates, DEFAULT_INSCRIPTION_RADIUS)
+    (TL, BR) = get_corners(city_coordinates, DEFAULT_INSCRIPTION_RADIUS)
 
     print(TL, BR, city_coordinates)
     traverse_quadrant(TL, BR)
