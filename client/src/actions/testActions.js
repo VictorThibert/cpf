@@ -1,8 +1,8 @@
 import axios from 'axios';
 import metroCities from '../metroCities.json'
 
-export const fetchRestaurants = (limit, city='montreal') => { // montreal default for now
-    const url = 'https://cherrypicker.io:4000/restaurant/get_list?limit=' + limit + '&city=' + city; // TODO : clean this structure up
+export const fetchRestaurants = (limit, city='montreal', price_level='$,$$,$$$,$$$$') => { // montreal default for now
+    const url = 'https://cherrypicker.io:4000/restaurant/get_list?limit=' + limit + '&city=' + city + '&price_level=' + price_level; // TODO : clean this structure up
     console.log(url)
     return function(dispatch) {
         axios.get(url)

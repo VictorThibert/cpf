@@ -5,6 +5,9 @@ import CardCustom from './components/CardCustom.js';
 import 'semantic-ui-css/semantic.min.css';
 import bannerImage from './images/montreal.png';
 import ButtonGroupPrice from './components/ButtonGroupPrice.js';
+import { connect } from 'react-redux';
+import { fetchRestaurants } from './actions/testActions.js';
+
 
 class App extends Component {
 
@@ -45,6 +48,11 @@ class App extends Component {
     });
   }
 
+  buttonPress(price_level) {
+    console.log("pl", price_level)
+    this.props.dispatch(fetchRestaurants(10, this.props.city, price_level)); // ensures that fetch is performed (moved to testActions)
+  }
+
   render() {
     return (
       <div>
@@ -63,12 +71,23 @@ class App extends Component {
           isVisible={this.state.isVisible}
           bannerImage={this.state.bannerImage}
         />
-        <ButtonGroupPrice/>
+        <ButtonGroupPrice
+          buttonPress={this.buttonPress.bind(this)}
+        />
       </div>
     );
   }
 }
 
-export default App;
+const mapStateToProps = (state) => { // state contains the reducer it seems
+    return {
+        restaurants: state.testReducer.restaurants,
+        user: state.testReducer.user,
+        coordinates: state.testReducer.coordinates,
+        city: state.testReducer.city,
+    }
+}
+
+export default connect(mapStateToProps)(App);
 
 

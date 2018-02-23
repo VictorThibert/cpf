@@ -1,24 +1,14 @@
 import React from 'react';
 import ReactMap from './ReactMap.js';
-import { fetchRestaurants, getUserLocation } from '../actions/testActions.js';
+import { getUserLocation } from '../actions/testActions.js';
 import { connect } from 'react-redux';
 
 
 class Gmap extends React.PureComponent {
 
-    constructor() {
-        super();
-        this.state = {
-            'city':'montreal'
-        }
-    }
-
-    componentDidMount() {
-    }
-
     componentWillMount() {
         this.props.dispatch(getUserLocation());
-        this.props.dispatch(fetchRestaurants(this.props.fetchLimit, this.props.city)); // ensures that fetch is performed
+        // this.props.dispatch(fetchRestaurants(this.props.fetchLimit, this.props.city)); // ensures that fetch is performed (moved to testActions)
     }
 
     render() {

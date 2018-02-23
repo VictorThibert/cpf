@@ -36,11 +36,21 @@ class ButtonGroupPrice extends React.Component {
     const changedButton = data.content;
     let currentButtonToggles = this.state.buttonToggles;
     currentButtonToggles[changedButton] = !currentButtonToggles[changedButton];
-    console.log(currentButtonToggles)
     this.setState({
       buttonToggles: currentButtonToggles
     })
 
+    // call App.js to rerender pins
+
+    const price1 = currentButtonToggles['$'] ? '$' : '';
+    const price2 = currentButtonToggles['$$'] ? '$$' : '';
+    const price3 = currentButtonToggles['$$$'] ? '$$$' : '';
+    const price4 = currentButtonToggles['$$$$'] ? '$$$$' : '';
+    const prices = [price1, price2, price3, price4];
+
+    const priceLevelString = prices.join(',');
+
+    this.props.buttonPress(priceLevelString);
   }
 
   render() {
