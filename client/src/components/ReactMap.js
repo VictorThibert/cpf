@@ -3,7 +3,8 @@
 
 import React from 'react';
 import { compose, withProps } from 'recompose';
-import { withScriptjs, withGoogleMap, GoogleMap, Marker} from 'react-google-maps';
+import { withScriptjs, withGoogleMap, GoogleMap } from 'react-google-maps';
+import MarkerCustom from './MarkerCustom.js'
 import mapStyle from '../mapStyle.json';
 
 
@@ -55,6 +56,7 @@ const radishUrl = (i, number_of_restaurants) => {
 }
 
 
+// generate markers
 const generateMarkers = (props) => {
     const restaurants = props.restaurants;
     console.log("markers")
@@ -69,11 +71,12 @@ const generateMarkers = (props) => {
     const n = 6; // temporary divisor for icon size
 
     const restaurantMarkers = restaurants.map(restaurant => 
-        <Marker 
+        <MarkerCustom 
             position = {{ 
                 lat: restaurant.location.lat, 
                 lng: restaurant.location.lng
             }} 
+            restaurantId = {restaurant._id}
             key = {restaurant._id}
             onClick = {() => {
                 props.onMarkerClick(restaurant, {lat: restaurant.location.lat, lng: restaurant.location.lng})
@@ -82,6 +85,7 @@ const generateMarkers = (props) => {
                 url: radishUrl(i++, restaurants.length),
                 scaledSize: new google.maps.Size(198/n, 281/n)
             }}
+            scaleFactor= {n}
         /> 
     )
     
