@@ -47,27 +47,34 @@ def get_list():
     DEFAULT_LIMIT = 10
     DEFAULT_MAXIMUM_DISTANCE = 30000
     DEFAULT_MINIMUM_SCORE = 0
-    DEFAULT_PRICE_LEVEL = 0 # means every price
     DEFAULT_RESULT_SET = 100
     DEFAULT_CITY = 'montreal'
+    DEFAULT_PRICE_LEVEL = '$,$$,$$$,$$$$'
 
     # argument list TODO: document api
     limit = int(request.args.get('limit', DEFAULT_LIMIT))
     coordinates = request.args.get('coordinates', None) # given in the form of a string 'lat,lng' (not good to use brackets of any kind in urls)
     maximum_distance = float(request.args.get('maximum_distance', DEFAULT_MAXIMUM_DISTANCE))
     minimum_score = float(request.args.get('minimum_score', DEFAULT_MINIMUM_SCORE))
-    price_level = int(request.args.get('price_level', DEFAULT_PRICE_LEVEL)) # TODO: implement price level
+    price_level = request.args.get('price_level', DEFAULT_PRICE_LEVEL) # TODO: implement price level string '$,$$' or '$'
     city = request.args.get('city', DEFAULT_CITY)
+
+    price_level_array = price_level.split(',')
 
     if coordinates is not None: # TODO what if no coordinates provided?
         lat, lng = coordinates.split(',')
         lat, lng = [float(lat), float(lng)]
         search_set = db.restaurants.find({
             'geo_json':{'$geoWithin':{'$centerSphere':[[lng, lat], meters_to_radians(maximum_distance)]}},
-            'rating_v1':{'$gt':minimum_score}
-            }).sort('rating', -1).limit(limit)
+            'rating_v1':{'$gt':minimum_score},
+            'yelp_price_level':{'$in':price_level_array}
+        }).sort('rating', -1).limit(limit)
     else:
-        search_set = db.restaurants.find({'rating_v1':{'$gt':minimum_score}, 'city':city}).sort('rating_v1', -1).limit(DEFAULT_RESULT_SET)
+        search_set = db.restaurants.find({
+            'rating_v1':{'$gt':minimum_score}, 
+            'city':city,
+            'yelp_price':{'$in':price_level_array}
+        }).sort('rating_v1', -1).limit(DEFAULT_RESULT_SET)
     
     for place in search_set:
         place = create_restaurant_response(place)
