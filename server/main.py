@@ -2,9 +2,11 @@ import logging
 from flask import Flask, send_from_directory, redirect
 from restaurants import restaurant
 from extensions import app
+from flask_cors import CORS
 
-
+CORS(app)
 app.register_blueprint(restaurant)
+
 
 
 # this is the main route
