@@ -2,8 +2,8 @@
 import flask
 import geopy.distance
 import logging
+import random_results
 
-from numpy import random
 from bson.objectid import ObjectId
 from extensions import db
 from flask import Blueprint, render_template, abort, request, jsonify
@@ -80,13 +80,10 @@ def get_list():
         place = create_restaurant_response(place)
         result_set.append(place)
 
-    # randomize result
-    random_list = result_set
 
-    try:
-        random_list = list(random.choice(result_set, limit, replace=False))
-    except ValueError:
-        print('List not long enough to randomize')
+    # randomize result
+    # TODO: move this stuff out of this file
+    random_list = random_results.get_list(result_set, limit)
 
     return jsonify(random_list) # return limit random restaurants for now
 
